@@ -24,14 +24,14 @@ const router = createRouter({
       path: "/artefact",
       component: "",
       children: [
-        { path: ":id", name: "product", component: ProductView, props: true },
+        // { path: ":id", name: "product", component: ProductView, props: true },
       ],
     },
     {
       path: "/about",
       name: "about",
-      component: "",
-    }, 
+      component: () => import('../views/AboutView.vue'),
+    },
     {
       path: '/signin',
       name: 'signin',
