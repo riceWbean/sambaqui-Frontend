@@ -104,17 +104,43 @@ onMounted(() => {
 
                 <div class="info-box">
                     <span class="label">Estado de conservação</span>
-                    <span class="value">{{ artefato.conservation_status }}</span>
+                    <span class="value">
+                        {{
+                            (
+                                {1: 'Perfeito', 2: 'Bom', 3: 'Regular', 4: 'Ruim', 5: 'Critical', 6: 'Irreversível'}
+                            )[artefato.conservation_status] || artefato.conservation_status
+                        }}
+                    </span>
                 </div>
 
                 <div class="info-box">
                     <span class="label">Completude</span>
-                    <span class="value">{{ artefato.completeness }}</span>
+                    <span class="value">
+                        {{
+                            (
+                                {1: 'Inteiro', 2: 'Fragmentado', 3: 'Fraturado'}
+                            )[artefato.completeness] || artefato.completeness
+                        }}
+                    </span>
                 </div>
 
                 <div class="info-box">
                     <span class="label">Detalhe de conservação</span>
-                    <span class="value">{{ artefato.detail_conservation_status }}</span>
+                    <span class="value">
+                        {{
+                            (
+                                {
+                                    1: 'Friável',
+                                    2: 'Erodido',
+                                    3: 'Lascado',
+                                    4: 'Incompleto',
+                                    5: 'Alterado quimicamente',
+                                    6: 'Deformado',
+                                    7: 'Estável'
+                                }
+                            )[artefato.detail_conservation_status] || artefato.detail_conservation_status
+                        }}
+                    </span>
                 </div>
 
                 <div class="info-box">
