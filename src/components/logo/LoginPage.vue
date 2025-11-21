@@ -4,7 +4,9 @@ import { ImageRight, InputsVue } from '..';
 <template>
     <div class="container">
         <div class="left">
+            <h1>Bem vindo novamente!</h1>
             <InputsVue />
+            <button class="btn">Entrar</button>
         </div>
         <div class="right">
             <ImageRight />
