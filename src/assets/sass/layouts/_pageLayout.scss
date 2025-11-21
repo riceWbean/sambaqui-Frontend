@@ -1,0 +1,17 @@
+.page-layout{
+    padding: 0px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+  40deg,
+  #2E2E2E 37%,
+  #363636 53%,
+  #2E2E2E 68%
+);
+  color: #fff;
+}
+.page-body{
+  flex: 1;
+  padding: 24px 48px;
+}

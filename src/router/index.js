@@ -15,6 +15,8 @@ const router = createRouter({
       component: () => import('../views/signIn/SignInView.vue')
     }
   ],
+  linkActiveClass: 'active',
+  linkExactActiveClass: 'active',
 })
 
 export default router

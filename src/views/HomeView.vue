@@ -1,10 +1,10 @@
 <template>
-  <Header />
-  <main>
-    abacate
-  </main>
+  <page-layout>
+    <main>
+    </main>
+  </page-layout>
 </template>
 
 <script setup>
-import Header from '@/components/Header.vue'
+import PageLayout from '@/layouts/PageLayout.vue';
 </script>
