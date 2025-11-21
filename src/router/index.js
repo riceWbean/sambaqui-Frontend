@@ -47,6 +47,11 @@ const router = createRouter({
       path: '/signin',
       name: 'signin',
       component: () => import('../views/signIn/SignInView.vue')
+    },
+    {
+      path: '/exhibitions',
+      name: 'exhibitions',
+      component: () => import('../views/exhibitions/ExhibitionsView.vue')
     }
   ],
   linkActiveClass: 'active',
