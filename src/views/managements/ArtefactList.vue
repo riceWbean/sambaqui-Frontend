@@ -10,7 +10,6 @@
             placeholder="Buscar por nome, número de acervo..."
             class="search-input"
           />
-          <span class="search-icon">🔍</span>
         </div>
 
         <button class="filter-toggle" @click="showFilters = !showFilters">
@@ -185,8 +184,6 @@
               <td>{{ artifact.location }}</td>
               <td class="actions-cell">
                 <button class="action-btn view" title="Visualizar" @click="viewArtifact(artifact)">Ver</button>
-                <button class="action-btn edit" title="Editar" @click="editArtifact(artifact)">Editar</button>
-                <button class="action-btn delete" title="Deletar" @click="deleteArtifact(artifact)">Deletar</button>
               </td>
             </tr>
           </tbody>
@@ -476,8 +473,10 @@ export default {
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #ecf0f1;
+  padding: 0.75rem 1rem 0.75rem;
+  border: 1px solid transparent;
+  background-color: #1e1e1e;
+  color: white;
   border-radius: 6px;
   font-size: 1rem;
   transition: border-color 0.3s;
@@ -485,36 +484,26 @@ export default {
 
 .search-input:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: #737373;
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
-
-.search-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #7f8c8d;
-}
-
 .filter-toggle {
-  background-color: white;
-  border: 1px solid #ecf0f1;
+  background-color: #1e1e1e;
+  border: 1px solid transparent;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
   transition: all 0.3s;
 }
 
 .filter-toggle:hover {
-  border-color: #3498db;
-  color: #3498db;
+  border-color: #737373;
 }
 
 .btn-primary {
-  background-color: #3498db;
+  background-color: #1e1e1e;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -522,25 +511,26 @@ export default {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
+  border: 1px solid transparent
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
+  border: 1px solid #737373;
 }
 
 /* Filters Panel */
 .filters-panel {
-  background: white;
+  background: #1e1e1e;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 25px;
 }
 
 .filter-group {
@@ -551,14 +541,14 @@ export default {
 
 .filter-group label {
   font-weight: 600;
-  color: #2c3e50;
-  font-size: 0.9rem;
+  color: white;
+  font-size: 1rem;
 }
 
 .filter-select,
 .filter-input {
   padding: 0.5rem;
-  border: 1px solid #ecf0f1;
+  border: 1px solid #737373;
   border-radius: 4px;
   font-size: 0.9rem;
 }
@@ -579,9 +569,9 @@ export default {
 }
 
 .btn-secondary {
-  background-color: #ecf0f1;
-  color: #2c3e50;
-  border: 1px solid #bdc3c7;
+  background-color: #737373;
+  color: white;
+  border: 1px solid transparent;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -590,7 +580,7 @@ export default {
 }
 
 .btn-secondary:hover {
-  background-color: #d5dbdb;
+  background-color: #5a5a5a;
 }
 
 /* View Options */
@@ -599,7 +589,6 @@ export default {
   gap: 2rem;
   align-items: center;
   flex-wrap: wrap;
-  background: white;
   padding: 1rem;
   border-radius: 6px;
 }
@@ -607,7 +596,8 @@ export default {
 .view-toggle {
   display: flex;
   gap: 0.5rem;
-  background: #f8f9fa;
+  color: white;
+  background: #1e1e1e;
   border-radius: 6px;
   padding: 0.25rem;
 }
@@ -620,10 +610,11 @@ export default {
   border-radius: 4px;
   transition: all 0.3s;
   font-weight: 600;
+  color: white;
 }
 
 .view-btn.active {
-  background-color: #3498db;
+  background-color: #737373;
   color: white;
 }
 
@@ -637,7 +628,7 @@ export default {
 .sort-options label,
 .items-per-page label {
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
 }
 
 .sort-select,
@@ -656,7 +647,7 @@ export default {
 
 /* Table View */
 .table-container {
-  background: white;
+  background: #1e1e1e;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -666,10 +657,11 @@ export default {
 .artifacts-table {
   width: 100%;
   border-collapse: collapse;
+  color: white;
 }
 
 .artifacts-table thead {
-  background-color: #2c3e50;
+  background-color: #1e1e1e;
   color: white;
 }
 
@@ -682,21 +674,17 @@ export default {
 
 .artifacts-table td {
   padding: 1rem;
-  border-bottom: 1px solid #ecf0f1;
-}
-
-.artifact-row:hover {
-  background-color: #f8f9fa;
+  border-bottom: 1px solid #313131;
 }
 
 .accession-number {
   font-weight: 600;
-  color: #3498db;
+  color: white;
 }
 
 .artifact-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
 }
 
 .badge,
@@ -710,42 +698,42 @@ export default {
 
 .badge.animal {
   background-color: #d5f4e6;
-  color: #27ae60;
+  color: #1e1e1e;
 }
 
 .badge.vegetal {
   background-color: #ffeaa7;
-  color: #f39c12;
+  color: #1e1e1e;
 }
 
 .badge.mineral {
   background-color: #d6eaf8;
-  color: #2980b9;
+  color: #1e1e1e;
 }
 
 .badge.cerâmica {
-  background-color: #fadbd8;
-  color: #c0392b;
+  background-color: hsl(5, 77%, 91%);
+  color: #1e1e1e;
 }
 
 .status-badge.excelente {
   background-color: #d5f4e6;
-  color: #27ae60;
+  color: #1e1e1e;
 }
 
 .status-badge.bom {
   background-color: #d6eaf8;
-  color: #2980b9;
+  color: #1e1e1e;
 }
 
 .status-badge.regular {
   background-color: #ffeaa7;
-  color: #f39c12;
+  color: #1e1e1e;
 }
 
 .status-badge.ruim {
   background-color: #fadbd8;
-  color: #c0392b;
+  color: #1e1e1e;
 }
 
 .actions-cell {
@@ -808,14 +796,13 @@ export default {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: white;
+  background: transparent;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .pagination-btn {
-  background-color: #3498db;
-  color: white;
+  background-color: #737373;
+  color: #1e1e1e;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -834,7 +821,7 @@ export default {
 }
 
 .pagination-info {
-  color: #2c3e50;
+  color: white;
   font-weight: 600;
 }
 
