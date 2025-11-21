@@ -3,12 +3,9 @@
     <!-- Sidebar Header -->
     <div class="sidebar-header">
       <div class="logo-section">
-        <h2 class="logo-text">Sambaqui</h2>
-        <p class="logo-subtitle">Museum</p>
+        <h2 class="logo-text">Museu do Sambaqui</h2>
+        <p class="logo-subtitle">Gestão de Acervo</p>
       </div>
-      <button class="toggle-btn" @click="toggleSidebar" title="Recolher/Expandir">
-        {{ isCollapsed ? '→' : '←' }}
-      </button>
     </div>
 
     <!-- Navigation Menu -->
@@ -143,6 +140,11 @@
     <div class="sidebar-footer">
       <button class="logout-btn" @click="logout">
         <span class="nav-text">Sair</span>
+        <svg class="logout-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.5rem;">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
       </button>
     </div>
   </aside>
@@ -177,7 +179,7 @@ export default {
 <style scoped>
 .sidebar {
   width: 280px;
-  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  background: #2E2E2E;
   color: white;
   height: 100vh;
   position: fixed;
@@ -284,23 +286,51 @@ export default {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #E4DFDB;
   text-decoration: none;
   transition: all 0.3s;
-  border-left: 3px solid transparent;
+  border-left: none; 
+  border-bottom: 3px solid transparent;
   gap: 0.75rem;
 }
 
+.nav-link {
+  position: relative;
+  border-bottom-color: transparent;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(to right, #E4DFDB , rgba(224, 216, 216, 0.85) 40%, rgba(221, 212, 212, 0.01) 100%);
+  transition: transform 300ms ease;
+  pointer-events: none;
+}
+
+/* Hover: animate sweep from right to left */
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(119, 115, 115, 0.1);
   color: white;
-  border-left-color: #3498db;
+}
+
+.nav-link.active::after {
+  transform: scaleX(1);
+  background: #E4DFDB ;
 }
 
 .nav-link.active {
-  background-color: rgba(52, 152, 219, 0.2);
-  color: #3498db;
-  border-left-color: #3498db;
+  background-color: rgba(76, 79, 82, 0.2);
+  color: #bec5ca;
   font-weight: 600;
 }
 
@@ -317,14 +347,17 @@ export default {
 /* Sidebar Footer */
 .sidebar-footer {
   padding: 1rem;
+  justify-content: center;
+  display: flex;
+  align-items: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: auto;
 }
 
 .logout-btn {
-  width: 100%;
-  background-color: rgba(231, 76, 60, 0.2);
-  border: 1px solid rgba(231, 76, 60, 0.5);
+  width: 80%;
+  background-color: #737373;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   color: #ecf0f1;
   padding: 0.75rem 1rem;
   border-radius: 6px;
@@ -338,8 +371,8 @@ export default {
 }
 
 .logout-btn:hover {
-  background-color: rgba(231, 76, 60, 0.4);
-  border-color: rgba(231, 76, 60, 0.8);
+  background-color: rgba(105, 104, 104, 0.4);
+  border-color: rgba(180, 180, 180, 0.8);
   color: white;
 }
 
