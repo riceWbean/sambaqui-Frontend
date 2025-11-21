@@ -36,15 +36,15 @@ export default {
 
 <style scoped>
 .recent-item-card {
-  background: white;
-  border: 1px solid #ecf0f1;
+  background: #1e1e1e;
+  border: 1px solid black;
   border-radius: 6px;
   padding: 1rem;
   transition: all 0.3s;
 }
 
 .recent-item-card:hover {
-  border-color: #3498db;
+  border-color: #737373;
   box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
 }
 
@@ -58,7 +58,7 @@ export default {
 .item-name {
   margin: 0;
   font-size: 1rem;
-  color: #2c3e50;
+  color: #737373;
   font-weight: 600;
 }
 
@@ -73,12 +73,14 @@ export default {
 
 .item-status.catalogado {
   background-color: #d5f4e6;
-  color: #27ae60;
+  color: #1e1e1e;
+  font-weight: bold;
 }
 
 .item-status.pendente {
   background-color: #ffeaa7;
-  color: #f39c12;
+  color: #1e1e1e;
+  font-weight: bold;
 }
 
 .item-meta {
@@ -89,10 +91,10 @@ export default {
 }
 
 .meta-item {
-  color: #7f8c8d;
+  color: white;
 }
 
 .meta-item strong {
-  color: #2c3e50;
+  color: #737373;
 }
 </style>

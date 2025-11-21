@@ -1,11 +1,9 @@
 <template>
   <div class="location-control" @click="$emit('click')">
-    <div class="control-icon">📍</div>
     <div class="control-content">
       <h4 class="control-title">{{ title }}</h4>
       <p class="control-description">{{ description }}</p>
     </div>
-    <div class="control-arrow">→</div>
   </div>
 </template>
 
@@ -28,9 +26,9 @@ export default {
 
 <style scoped>
 .location-control {
-  background: white;
-  border: 2px solid #ecf0f1;
+  background: #1e1e1e;
   border-radius: 6px;
+  border: 1px solid black;
   padding: 1.5rem;
   display: flex;
   align-items: center;
@@ -41,7 +39,7 @@ export default {
 
 .location-control:hover {
   border-color: #e74c3c;
-  background-color: #fff5f5;
+  border: 1px solid #737373;
   box-shadow: 0 2px 8px rgba(231, 76, 60, 0.1);
 }
 
@@ -58,14 +56,14 @@ export default {
 .control-title {
   margin: 0;
   font-size: 1rem;
-  color: #2c3e50;
+  color: white;
   font-weight: 600;
 }
 
 .control-description {
   margin: 0.25rem 0 0 0;
   font-size: 0.85rem;
-  color: #7f8c8d;
+  color: #737373;
 }
 
 .control-arrow {

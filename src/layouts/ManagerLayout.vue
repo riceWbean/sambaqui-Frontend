@@ -63,7 +63,10 @@ export default {
 .manager-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background: linear-gradient(40deg,
+      #2E2E2E 37%,
+      #363636 53%,
+      #2E2E2E 68%);;
 }
 
 /* Main Content */
@@ -81,9 +84,8 @@ export default {
 
 /* Top Header */
 .top-header {
-  background: white;
+  background: #1e1e1e;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #ecf0f1;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -100,14 +102,14 @@ export default {
 .page-title {
   margin: 0 0 0.5rem 0;
   font-size: 1.8rem;
-  color: #2c3e50;
+  color: #ffffff;
   font-weight: 700;
 }
 
 .page-breadcrumb {
   margin: 0;
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: #ffffff;
 }
 
 .header-right {

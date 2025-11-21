@@ -1,5 +1,5 @@
 <template>
-  <div class="stat-card" :style="{ borderTopColor: color }">
+  <div class="stat-card">
     <div class="stat-content">
       <h3 class="stat-title">{{ title }}</h3>
       <p class="stat-value">{{ value }}</p>
@@ -25,7 +25,6 @@ export default {
     },
     color: {
       type: String,
-      default: '#3498db'
     }
   }
 }
@@ -33,11 +32,10 @@ export default {
 
 <style scoped>
 .stat-card {
-  background: white;
+  background: #1e1e1e;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-top: 4px solid;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -72,7 +70,7 @@ export default {
 .stat-value {
   margin: 0.5rem 0 0 0;
   font-size: 1.8rem;
-  color: #2c3e50;
+  color: white;
   font-weight: 700;
 }
 </style>
