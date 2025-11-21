@@ -21,12 +21,23 @@ const router = createRouter({
       component: "",
     },
     {
-      path: "/artefact",
+      path: "/artefact/:id",
+      name: "artefact",
+      component: "",
+    },
+    {
+      path: "/management/",
       component: "",
       children: [
-        { path: ":id", name: "product", component: ProductView, props: true },
+        { path: "", name: "management", component: "" },
+        { path: ":id", name: "artefact", component:"" },
+        { path: "add", name: "addArtefact", component: "" },
+        { path: "categories", name: "categories", component: "" },
+        { path: "artefactsList", name: "artefactsList", component: "" },
       ],
+      meta: { requiresAuth: true }
     },
+    
     {
       path: "/about",
       name: "about",
