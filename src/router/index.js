@@ -12,26 +12,21 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/exhibitions",
-      name: "exhibitions",
-      component: "",
-    },
-    {
       path: "/collection",
       name: "collection",
       component: "",
     },
     {
-      path: "/artefact/:id",
+      path: "/artefact/:id/",
       name: "artefact",
-      component: "",
+      component: () => import('@/views/collections/ArtefactView.vue'),
     },
     {
       path: "/management/",
       component: "",
       children: [
         { path: "", name: "management", component: "" },
-        { path: ":id", name: "artefact", component:ArtefactView },
+        { path: ":id", name: "managementArtefact", component: ArtefactView },
         { path: "add", name: "addArtefact", component: "" },
         { path: "categories", name: "categories", component: "" },
         { path: "artefactsList", name: "artefactsList", component: "" },
