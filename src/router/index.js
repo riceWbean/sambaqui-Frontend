@@ -29,9 +29,9 @@ const router = createRouter({
         { path: ":id", name: "managementArtefact", component: ArtefactView },
         { path: "add", name: "addArtefact", component: "" },
         { path: "categories", name: "categories", component: "" },
-        { path: "artefactsList", name: "artefactsList", component: "" },
+        { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
-      meta: { requiresAuth: true }
+      //meta: { requiresAuth: true }
     },
     
     {
