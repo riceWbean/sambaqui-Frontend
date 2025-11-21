@@ -43,13 +43,13 @@
 
       <div class="card-actions">
         <button class="action-btn view" title="Visualizar" @click="$emit('view', artifact)">
-          👁️ Ver
+          Ver
         </button>
         <button class="action-btn edit" title="Editar" @click="$emit('edit', artifact)">
-          ✏️ Editar
+           Editar
         </button>
         <button class="action-btn delete" title="Deletar" @click="$emit('delete', artifact)">
-          🗑️ Deletar
+           Deletar
         </button>
       </div>
     </div>
@@ -71,7 +71,7 @@ export default {
 
 <style scoped>
 .artifact-card {
-  background: white;
+  background: #1e1e1e;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -174,7 +174,7 @@ export default {
 .card-title {
   margin: 0;
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: #ecf0f1;
   font-weight: 700;
   line-height: 1.3;
 }
@@ -211,7 +211,7 @@ export default {
 }
 
 .meta-value {
-  color: #2c3e50;
+  color: #ecf0f1;
   text-align: right;
 }
 
