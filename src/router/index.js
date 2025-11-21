@@ -29,13 +29,13 @@ const router = createRouter({
       path: "/management/",
       component: "",
       children: [
-        { path: "", name: "management", component: "" },
+        { path: "", name: "management", component: () => import('../views/managements/Management.vue') },
         { path: ":id", name: "artefact", component:"" },
         { path: "add", name: "addArtefact", component: "" },
         { path: "categories", name: "categories", component: "" },
-        { path: "artefactsList", name: "artefactsList", component: "" },
+        { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
-      meta: { requiresAuth: true }
+      //meta: { requiresAuth: true }
     },
     
     {
