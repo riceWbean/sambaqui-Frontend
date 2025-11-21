@@ -1,11 +1,9 @@
 <template>
   <button class="action-button" @click="$emit('click')">
-    <div class="button-icon">{{ icon }}</div>
     <div class="button-content">
       <h4 class="button-label">{{ label }}</h4>
       <p class="button-description">{{ description }}</p>
     </div>
-    <div class="button-arrow">→</div>
   </button>
 </template>
 
@@ -32,8 +30,8 @@ export default {
 
 <style scoped>
 .action-button {
-  background: white;
-  border: 1px solid #ecf0f1;
+  background: #1e1e1e;
+  border: 1px solid black;
   border-radius: 6px;
   padding: 1rem;
   display: flex;
@@ -46,15 +44,9 @@ export default {
 }
 
 .action-button:hover {
-  background-color: #f8f9fa;
-  border-color: #3498db;
+  background-color: #1e1e1e;
+  border-color: #737373;
   box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
-}
-
-.button-icon {
-  font-size: 1.5rem;
-  min-width: 40px;
-  text-align: center;
 }
 
 .button-content {
@@ -64,7 +56,7 @@ export default {
 .button-label {
   margin: 0;
   font-size: 1rem;
-  color: #2c3e50;
+  color: #ffffff;
   font-weight: 600;
 }
 
