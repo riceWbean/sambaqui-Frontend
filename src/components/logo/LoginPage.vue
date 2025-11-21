@@ -13,4 +13,4 @@ import { ImageRight, InputsVue } from '..';
 </template>
 <style scoped>
 @import '@/assets/sass/signIn/_loginPage.scss';
-</style>
+</style>""

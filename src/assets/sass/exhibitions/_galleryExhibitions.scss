@@ -1,0 +1,20 @@
+.galleryContainer{
+background-color: #2E2E2E;
+height: 100vh;
+display: flex;
+flex-direction: row;
+// justify-content: space-between;
+flex-wrap: wrap;
+
+gap: 0 27px;
+    .itemGal{
+        width: 310px;
+        height: 310px;
+        background-color: gray;
+    }
+    .itemGal1{
+    width: 310px;
+    height: 400px;
+    background-color: gray;
+    }
+}
