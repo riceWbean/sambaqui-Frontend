@@ -24,7 +24,7 @@ const router = createRouter({
       path: "/artefact",
       component: "",
       children: [
-        { path: ":id", name: "product", component: ProductView, props: true },
+        { path: ":id", name: "product", component: "", props: true },
       ],
     },
     {
