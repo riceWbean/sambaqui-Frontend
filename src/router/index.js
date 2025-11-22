@@ -25,7 +25,7 @@ const router = createRouter({
       path: "/management",
       component: "",
       children: [
-        { path: "", name: "managementHome", component: () => import('@/views/managements/Management.vue'), },
+        { path: "", name: "management", component: () => import('../views/managements/Management.vue') },
         { path: ":id", name: "managementArtefact", component: ArtefactView },
         { path: "add", name: "addArtefact", component: "" },
         { path: "categories", name: "categories", component: "" },

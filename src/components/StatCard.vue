@@ -43,10 +43,6 @@ export default {
   cursor: pointer;
 }
 
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
 .stat-icon {
   font-size: 2rem;
