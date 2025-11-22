@@ -30,6 +30,7 @@ const router = createRouter({
         { path: ":id", name: "managementArtefact", component: () => import('../views/managements/ArtefactDetail.vue') },
         { path: "add", name: "addArtefact", component: AddArtefact },
         { path: "categories", name: "categories", component: ""},
+        { path: "log-changes", name: "logChanges", component: () => import('../views/managements/LogChanges.vue') },
         { path: "sub-types", name: "subTypes", component: () => import('../views/managements/SubType.vue') },
         { path: "raw-materials", name: "rawMaterials", component: () => import('../views/managements/RawMaterials.vue') },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
