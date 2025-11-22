@@ -9,9 +9,6 @@
         <label class="rm-label">Nome</label>
         <input v-model="form.name" type="text" placeholder="Ex: Cerâmica" class="rm-input" />
 
-        <label class="rm-label">Descrição (opcional)</label>
-        <textarea v-model="form.description" rows="3" class="rm-textarea" placeholder="Observações..."></textarea>
-
         <div v-if="error" class="rm-error">{{ error }}</div>
       </div>
 
