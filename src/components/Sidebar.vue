@@ -40,8 +40,8 @@
             </router-link>
           </li>
           <li>
-            <router-link 
-              to="/management/add" 
+            <router-link
+              to="/management/add"
               class="nav-link"
               :class="{ active: isActive('/management/add') }"
             >
