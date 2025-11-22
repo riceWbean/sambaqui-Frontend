@@ -15,9 +15,9 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/collection",
-      name: "collection",
-      component: "",
+      path: "/collections",
+      name: "collections",
+      component: () => import('../views/collections/CollectionsView.vue'),
     },
     {
       path: "/artefact/:id/",
