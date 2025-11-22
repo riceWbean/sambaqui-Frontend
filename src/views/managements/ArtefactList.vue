@@ -1,3 +1,125 @@
+<script setup>
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import ManagerLayout from '@/layouts/ManagerLayout.vue'
+import ArtefactCard from '@/components/ArtefactCard.vue'
+import { useArtefactsStore } from '@/stores/useArtefactStore'
+import { useArtefatosStore, useDashboardStore } from '@/stores'
+import { getSubTypes } from '@/utils/artefacts'
+
+const Artefacts = ref([])
+
+const store = useArtefactsStore()
+const artefatosStores = useArtefatosStore();
+const dashboardStore = useDashboardStore();
+
+const searchQuery = ref('')
+const showFilters = ref(false)
+const viewMode = ref('table')
+const sortBy = ref('recent')
+const currentPage = ref(1)
+const itemsPerPage = ref(25)
+const showNewArtefactsModal = ref(false)
+const showComponent = ref(false);
+
+function stateConverter(item) {
+  switch(item) {
+    case 1:
+      return 'Perfeito'
+    case 2:
+      return 'Bom'
+    case 3:
+      return 'Regular'
+    case 4:
+      return 'Ruim'
+    case 5:
+      return 'Crítico'
+    case 6:
+      return 'Irreversível'
+  }
+}
+
+// const filteredArtefacts = computed(() => {
+//   let result = Artefacts.value
+
+//   if (searchQuery.value) {
+//     const q = searchQuery.value.toLowerCase()
+//     result = result.filter(a =>
+//       (a.name || '').toLowerCase().includes(q) ||
+//       (a.accessionNumber || '').toLowerCase().includes(q) ||
+//       (a.description || '').toLowerCase().includes(q)
+//     )
+//   }
+
+//   if (filters.collection) result = result.filter(a => a.collection === filters.collection)
+//   if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
+//   if (filters.subType) result = result.filter(a => a.subType === filters.subType)
+//   if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
+//   if (filters.location) result = result.filter(a => a.location === filters.location)
+
+//   return result
+// })
+
+const paginatedArtefacts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredArtefacts.value.slice(start, end)
+})
+
+const activeFiltersCount = computed(() => Object.values(artefatosStores.filters).filter(v => v !== '').length)
+
+function applyFilters() {
+  currentPage.value = 1
+  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
+}
+
+function viewArtefacts(Artefacts) {
+  console.log('Visualizar artefato:', Artefacts)
+}
+
+function editArtefact(Artefacts) {
+  console.log('Editar artefato:', Artefacts)
+}
+
+async function deleteArtefact(Artefacts) {
+  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
+  try {
+    await store.remove(Artefacts.id)
+    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
+  } catch (e) {
+    console.error('Erro ao deletar artefato:', e)
+  }
+}
+
+async function loadArtefacts(options) {
+  try {
+  const data = await store.fetchAll(options)
+    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
+    console.log('[ArtefactList] normalized list:', list)
+    Artefacts.value = Array.isArray(list) ? list : []
+  } catch (e) {
+    console.error('Erro ao carregar artefatos:', e)
+  }
+}
+
+const totalPages = computed(() => dashboardStore.dashboard.total_artefacts % artefatosStores.filters.num_artefacts == 0 ? dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts : Math.floor(dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts) + 1);
+
+watch(itemsPerPage, () => { currentPage.value = 1 })
+
+onMounted(async () => {
+  if (Object.entries(dashboardStore.dashboard).length == 0) {
+    await dashboardStore.getDashboard();
+  }
+  if (Object.entries(artefatosStores.categories).length == 0) {
+    await artefatosStores.getCategories();
+  }
+  if (artefatosStores.artefatos.length == 0) {
+    await artefatosStores.getAllArtefacts(); 
+  }
+  showComponent.value = true;
+})
+
+</script>
+
 <template>
   <ManagerLayout page-title="Listagem de Artefatos" breadcrumb="Acervo > Listagem de Artefatos">
     <div class="Artefacts-list-container">
@@ -5,7 +127,8 @@
       <div class="search-filters-bar">
         <div class="search-box">
           <input
-            v-model="searchQuery"
+            v-model="artefatosStores.filters.search"
+            @keyup.enter="artefatosStores.getFilteredArtefacts()"
             type="text"
             placeholder="Buscar por nome, número de acervo..."
             class="search-input"
@@ -13,7 +136,7 @@
         </div>
 
         <button class="filter-toggle" @click="showFilters = !showFilters">
-          Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : '' }}
+          Filtros {{ activeFiltersCount > 2 ? `(${activeFiltersCount - 2})` : '' }}
         </button>
 
         <button class="btn-primary" @click="showNewArtefactsModal = true">
@@ -27,59 +150,41 @@
           <!-- Collection Filter -->
           <div class="filter-group">
             <label>Coleção</label>
-            <select v-model="filters.collection" class="filter-select">
+            <select v-model="artefatosStores.filters.collection" class="filter-select">
               <option value="">Todas</option>
-              <option value="tiburtius">Tiburtius</option>
-              <option value="joinville">Joinville</option>
-              <option value="arqueologia">Arqueologia</option>
+              <option v-for="(collection, collectionIndex) in artefatosStores.categories.collections" :key="collectionIndex" :value="collection.id">{{ collection.name }}</option>
             </select>
           </div>
 
           <!-- Raw Material Filter -->
           <div class="filter-group">
             <label>Matéria-Prima</label>
-            <select v-model="filters.rawMaterial" class="filter-select">
+            <select v-model="artefatosStores.filters.raw_material" class="filter-select">
               <option value="">Todas</option>
-              <option value="animal">Animal</option>
-              <option value="vegetal">Vegetal</option>
-              <option value="mineral">Mineral</option>
-              <option value="outro">Outro</option>
+              <option v-for="(rawMaterials, rawMaterialsIndex) in artefatosStores.categories.raw_materials" :key="rawMaterialsIndex" :value="rawMaterials.id">{{ rawMaterials.name }}</option>
             </select>
           </div>
 
           <!-- Sub-Type Filter -->
           <div class="filter-group">
             <label>Sub-Tipo</label>
-            <select v-model="filters.subType" class="filter-select">
+            <select v-model="artefatosStores.filters.sub_type" :disabled="artefatosStores.filters.raw_material == ''" class="filter-select">
               <option value="">Todos</option>
-              <option value="ceramica">Cerâmica</option>
-              <option value="osso">Osso</option>
-              <option value="concha">Concha</option>
-              <option value="pedra">Pedra</option>
+              <option v-for="(subType, subTypeIndex) in getSubTypes(artefatosStores.categories.sub_type, artefatosStores.filters.raw_material)" :key="subTypeIndex" :value="subType.id">{{ subType.name }}</option>
             </select>
           </div>
 
           <!-- Conservation Status Filter -->
           <div class="filter-group">
             <label>Estado de Conservação</label>
-            <select v-model="filters.conservationStatus" class="filter-select">
+            <select v-model="artefatosStores.filters.conservation_status" class="filter-select">
               <option value="">Todos</option>
-              <option value="excelente">Excelente</option>
-              <option value="bom">Bom</option>
-              <option value="regular">Regular</option>
-              <option value="ruim">Ruim</option>
-            </select>
-          </div>
-
-          <!-- Location Filter -->
-          <div class="filter-group">
-            <label>Localização</label>
-            <select v-model="filters.location" class="filter-select">
-              <option value="">Todas</option>
-              <option value="reserva-antiga">Reserva Antiga</option>
-              <option value="reserva-nova">Reserva Nova</option>
-              <option value="exposicao">Em Exposição</option>
-              <option value="emprestimo">Em Empréstimo</option>
+              <option value="1">Excelente</option>
+              <option value="2">Bom</option>
+              <option value="3">Regular</option>
+              <option value="4">Ruim</option>
+              <option value="5">Crítico</option>
+              <option value="6">Irreversível</option>
             </select>
           </div>
 
@@ -88,13 +193,13 @@
             <label>Período de Datação</label>
             <div class="dating-inputs">
               <input
-                v-model="filters.datingFrom"
+                v-model="artefatosStores.filters.dating_from"
                 type="number"
                 placeholder="De"
                 class="filter-input"
               />
               <input
-                v-model="filters.datingTo"
+                v-model="artefatosStores.filters.dating_to"
                 type="number"
                 placeholder="Até"
                 class="filter-input"
@@ -104,8 +209,8 @@
         </div>
 
         <div class="filters-actions">
-          <button class="btn-secondary" @click="clearFilters">Limpar Filtros</button>
-          <button class="btn-primary" @click="applyFilters">Aplicar Filtros</button>
+          <button class="btn-secondary" @click="artefatosStores.filteredArtefacts = []">Limpar Filtros</button>
+          <button class="btn-primary" @click="artefatosStores.getFilteredArtefacts()">Aplicar Filtros</button>
         </div>
       </div>
 
@@ -138,7 +243,7 @@
 
         <div class="items-per-page">
           <label>Itens por página:</label>
-          <select v-model.number="itemsPerPage" class="items-select">
+          <select v-model.number="artefatosStores.filters.num_artefacts" class="items-select">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
@@ -148,8 +253,9 @@
       </div>
 
       <!-- Results Info -->
-      <div class="results-info">
-        <p>Mostrando <strong>{{ 0 }}</strong> de <strong>{{ 0 }}</strong> artefatos</p>
+      <div class="results-info" v-if="showComponent">
+        <p v-if="artefatosStores.filteredArtefacts.length == 0">Mostrando <strong>{{ artefatosStores.artefatos.results.length }}</strong> de <strong>{{ dashboardStore.dashboard.total_artefacts }}</strong> artefatos</p>
+        <p v-else>Mostrando <strong>{{ artefatosStores.filteredArtefacts.length }}</strong> de <strong>{{ artefatosStores.artefatos.length }}</strong> artefatos</p>
       </div>
 
       <!-- Table View -->
@@ -165,22 +271,40 @@
               <th>Localização</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="Artefact in Artefacts" :key="Artefact.id" class="Artefacts-row">
-              <td class="accession-number">{{ Artefact.id }}</td>
-              <td class="Artefacts-name">{{ Artefact.name }}</td>
-              <td>{{ Artefact.collection.name }}</td>
+          <tbody v-if="artefatosStores.filteredArtefacts.length == 0">
+            <tr v-for="(artefact, artefactId) in artefatosStores.artefatos.results" :key="artefactId" class="Artefacts-row">
+              <td class="accession-number">{{ artefact.id }}</td>
+              <td class="Artefacts-name">{{ artefact.name }}</td>
+              <td>{{ artefact.collection.name }}</td>
               <td>
-                <span class="badge" :class="(Artefact.rawMaterial || '').toString().toLowerCase()">
-                  {{ Artefact.raw_material.name }}
+                <span class="badge" :class="(artefact.raw_material || '').toString().toLowerCase()">
+                  {{ artefact.raw_material.name }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" :class="(Artefact.conservationStatus || '').toString().toLowerCase()">
-                  {{ stateConverter(Artefact.conservation_status) }}
+                <span class="status-badge" :class="(artefact.conservationStatus || '').toString().toLowerCase()">
+                  {{ stateConverter(artefact.conservation_status) }}
                 </span>
               </td>
-              <td>{{ Artefact.localization.room }}</td>
+              <td>{{ artefact.localization.room }}</td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <tr v-for="(artefact, artefactId) in artefatosStores.filteredArtefacts.results" :key="artefactId" class="Artefacts-row">
+              <td class="accession-number">{{ artefact.id }}</td>
+              <td class="Artefacts-name">{{ artefact.name }}</td>
+              <td>{{ artefact.collection.name }}</td>
+              <td>
+                <span class="badge" :class="(artefact.raw_material || '').toString().toLowerCase()">
+                  {{ artefact.raw_material.name }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" :class="(artefact.conservationStatus || '').toString().toLowerCase()">
+                  {{ stateConverter(artefact.conservation_status) }}
+                </span>
+              </td>
+              <td>{{ artefact.localization.room }}</td>
             </tr>
           </tbody>
         </table>
@@ -200,20 +324,20 @@
       <!-- Pagination -->
       <div class="pagination">
         <button
-          :disabled="currentPage === 1"
-          @click="currentPage--"
+          :disabled="artefatosStores.filters.page === 1"
+          @click="artefatosStores.filters.page--; artefatosStores.getAllArtefacts()"
           class="pagination-btn"
         >
           Anterior
         </button>
 
         <div class="pagination-info">
-          Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong>
+          Página <strong>{{ artefatosStores.filters.page }}</strong> de <strong>{{ totalPages }}</strong>
         </div>
 
         <button
-          :disabled="currentPage === totalPages"
-          @click="currentPage++"
+          :disabled="artefatosStores.filters.page === totalPages"
+          @click="artefatosStores.filters.page++; artefatosStores.getAllArtefacts()"
           class="pagination-btn"
         >
           Próxima
@@ -222,135 +346,6 @@
     </div>
   </ManagerLayout>
 </template>
-
-<script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import ManagerLayout from '@/layouts/ManagerLayout.vue'
-import ArtefactCard from '@/components/ArtefactCard.vue'
-import { useArtefactsStore } from '@/stores/useArtefactStore'
-
-const Artefacts = ref([])
-
-const store = useArtefactsStore()
-
-const searchQuery = ref('')
-const showFilters = ref(false)
-const viewMode = ref('table')
-const sortBy = ref('recent')
-const currentPage = ref(1)
-const itemsPerPage = ref(25)
-const showNewArtefactsModal = ref(false)
-const filters = reactive({
-  collection: '',
-  rawMaterial: '',
-  subType: '',
-  conservationStatus: '',
-  location: '',
-  datingFrom: '',
-  datingTo: '',
-})
-
-function stateConverter(item) {
-  switch(item) {
-    case 1:
-      return 'Perfeito'
-    case 2:
-      return 'Bom'
-    case 3:
-      return 'Regular'
-    case 4:
-      return 'Ruim'
-    case 5:
-      return 'Crítico'
-    case 6:
-      return 'Irreversível'
-  }
-}
-
-const filteredArtefacts = computed(() => {
-  let result = Artefacts.value
-
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter(a =>
-      (a.name || '').toLowerCase().includes(q) ||
-      (a.accessionNumber || '').toLowerCase().includes(q) ||
-      (a.description || '').toLowerCase().includes(q)
-    )
-  }
-
-  if (filters.collection) result = result.filter(a => a.collection === filters.collection)
-  if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
-  if (filters.subType) result = result.filter(a => a.subType === filters.subType)
-  if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
-  if (filters.location) result = result.filter(a => a.location === filters.location)
-
-  return result
-})
-
-const paginatedArtefacts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredArtefacts.value.slice(start, end)
-})
-
-const totalPages = computed(() => Math.ceil(filteredArtefacts.value.length / itemsPerPage.value))
-const activeFiltersCount = computed(() => Object.values(filters).filter(v => v !== '').length)
-
-function applyFilters() {
-  currentPage.value = 1
-  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
-}
-
-function clearFilters() {
-  filters.collection = ''
-  filters.rawMaterial = ''
-  filters.subType = ''
-  filters.conservationStatus = ''
-  filters.location = ''
-  filters.datingFrom = ''
-  filters.datingTo = ''
-  searchQuery.value = ''
-  currentPage.value = 1
-  loadArtefacts()
-}
-
-function viewArtefacts(Artefacts) {
-  console.log('Visualizar artefato:', Artefacts)
-}
-
-function editArtefact(Artefacts) {
-  console.log('Editar artefato:', Artefacts)
-}
-
-async function deleteArtefact(Artefacts) {
-  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
-  try {
-    await store.remove(Artefacts.id)
-    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
-  } catch (e) {
-    console.error('Erro ao deletar artefato:', e)
-  }
-}
-
-async function loadArtefacts(options) {
-  try {
-  const data = await store.fetchAll(options)
-    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
-    console.log('[ArtefactList] normalized list:', list)
-    Artefacts.value = Array.isArray(list) ? list : []
-  } catch (e) {
-    console.error('Erro ao carregar artefatos:', e)
-  }
-}
-
-watch(itemsPerPage, () => { currentPage.value = 1 })
-
-onMounted( async () => {
-  await loadArtefacts()
-})
-
-</script>
 
 <style scoped>
 .Artefacts-list-container {

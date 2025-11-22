@@ -13,7 +13,7 @@ export {
     LoginPage,
     topSection,
     distanceSection,
-    bottomSection
+    bottomSection,
     ExhibitionsContainer,
     GalleryExhibitions
 }

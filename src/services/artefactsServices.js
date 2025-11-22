@@ -1,9 +1,13 @@
 import api from '@/plugins/api'
 
-class ArtefactssService {
-    async getAllArtefacts() {
+class ArtefactsService {
+    async getCategories() {
+        const response = await api.get('/artefacts/list_categories/');
+        return response.data;
+    }
+    async getAllArtefacts(num_artefacts, page) {
         try {
-            const { data } = await api.get('/artefacts');
+            const { data } = await api.get(`/artefacts?num_artefacts=${num_artefacts}&page=${page}`);
             return data;
         } catch (error) {
             throw new Error('Falha ao buscar artefatos: ' + error.message);
@@ -11,20 +15,18 @@ class ArtefactssService {
     }
 
     async getFilteredArtefacts(filterParams) {
-        url = `artefacts?`;
+        let url = `artefacts?`;
         for (const [key, value] of Object.entries(filterParams)) {
-            if (url == 'artefacts?') {
-                url += `${key}=${value}`;
-                continue;
+            if (value != '') {
+                if (url == 'artefacts?') {
+                    url += `${key}=${value}`;
+                    continue;
+                }
+                url += `&${key}=${value}`;
             }
-            url += `&${key}=${value}`;
         }
-        try {
-            const { data } = await api.get(url);
-            return data;
-        } catch (error) {
-            throw new Error('Falha ao buscar artefatos filtrados: ' + error.message);
-        }
+        const { data } = await api.get(url);
+        return data;
     }
 
     async getArtefact(id) {
@@ -55,4 +57,4 @@ class ArtefactssService {
     }
 }
 
-export default new ArtefactssService();
+export default new ArtefactsService();
