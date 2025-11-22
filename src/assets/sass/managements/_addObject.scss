@@ -1,0 +1,281 @@
+.cadastro-arqueologico {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+
+    .cadastro-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #1e1e1e;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        .cadastro-header {
+            background-color: #1e1e1e;
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid #333;
+
+            h1 {
+                margin: 0;
+                font-size: 2rem;
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }
+
+            .subtitle {
+                margin: 0.5rem 0 0;
+                font-size: 1rem;
+                opacity: 0.95;
+                font-weight: 300;
+            }
+        }
+
+        .cadastro-form {
+            padding: 2rem;
+
+            .form-section {
+                margin-bottom: 2.5rem;
+                padding-bottom: 2rem;
+                border-bottom: 2px solid #474747;
+
+                &:last-of-type {
+                    border-bottom: none;
+                }
+
+                .section-title {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: #fff;
+                    margin: 0 0 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+
+                    .image-count {
+                        font-size: 0.9rem;
+                        color: #E4DFDB;
+                        font-weight: 500;
+                    }
+                }
+
+                .form-row {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 1.5rem;
+                    margin-bottom: 1.5rem;
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+
+                .form-group {
+                    display: flex;
+                    flex-direction: column;
+
+                    &.full-width {
+                        grid-column: 1 / -1;
+                    }
+
+                    label {
+                        font-size: 0.875rem;
+                        font-weight: 600;
+                        color: #fff;
+                        margin-bottom: 0.5rem;
+
+                        &.required::after {
+                            content: ' *';
+                            color: #e74c3c;
+                        }
+                    }
+
+                    input,
+                    select,
+                    textarea {
+                        padding: 0.75rem 1rem;
+                        border: 2px solid #414141;
+                        border-radius: 8px;
+                        font-size: 0.95rem;
+                        transition: all 0.3s ease;
+                        font-family: inherit;
+                        background-color: #333;
+                        color: #aaa;
+
+
+                        &:focus {
+                            outline: none;
+                            border-color: #BFA78D;
+                            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                        }
+
+                        &::placeholder {
+                            color: #aaa;
+                        }
+
+                        &.error {
+                            border-color: #e74c3c;
+
+                            &:focus {
+                                box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+                            }
+                        }
+                    }
+
+                    textarea {
+                        resize: vertical;
+                        min-height: 100px;
+                    }
+
+                    .error-message {
+                        color: #e74c3c;
+                        font-size: 0.8rem;
+                        margin-top: 0.25rem;
+                        font-weight: 500;
+                    }
+                }
+            }
+
+            .upload-area {
+                border: 3px dashed #737373;
+                border-radius: 12px;
+                padding: 3rem 2rem;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background: #333;
+
+                &:hover {
+                    border-color: #BFA78D;
+                    background: #3d3d3d;
+                }
+
+                &.dragging {
+                    border-color: #BFA78D;
+                    background: #292929;
+                    transform: scale(1.02);
+                }
+
+                .upload-content {
+                    .upload-icon {
+                        width: 64px;
+                        height: 64px;
+                        margin: 0 auto 1rem;
+                        color: #aaa;
+                    }
+
+                    .upload-text {
+                        font-size: 1rem;
+                        color: #aaa;
+                    }
+
+                    .upload-hint {
+                        font-size: 0.85rem;
+                        color: #aaa;
+                        margin-top: 0.5rem;
+                    }
+                }
+            }
+
+            .images-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+                margin-top: 1.5rem;
+
+                .image-item {
+                    background: #fff;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+
+                    .image-preview {
+                        width: 100%;
+                        padding-top: 75%;
+                        position: relative;
+
+                        img {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        }
+                    }
+
+                    .image-info {
+                        padding: 0.5rem 0.75rem;
+                        flex-grow: 1;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+
+                        .image-name {
+                            font-size: 0.85rem;
+                            color: #333;
+                            margin-bottom: 0.5rem;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .image-actions {
+                            display: flex;
+                            gap: 0.5rem;
+
+                            .btn-replace,
+                            .btn-remove {
+                                flex: 1;
+                                padding: 0.4rem 0.5rem;
+                                font-size: 0.8rem;
+                                border: none;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                transition: background 0.3s ease;
+                                text-align: center;
+
+                                &:hover {
+                                    opacity: 0.9;
+                                }
+                            }
+
+                            .btn-replace {
+                                background: #f39c12;
+                                color: white;
+                            }
+
+                            .btn-remove {
+                                background: #e74c3c;
+                                color: white;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+
+                .btn {
+                    padding: 0.75rem 1.5rem;
+                    font-size: 1rem;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background 0.3s ease;
+
+                    &:hover {
+                        background: darken(#aaa, 5%);
+                    }
+                }
+            }
+        }
+    }
+}
