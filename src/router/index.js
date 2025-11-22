@@ -48,7 +48,12 @@ const router = createRouter({
       path: '/exhibitions',
       name: 'exhibitions',
       component: () => import('../views/exhibitions/ExhibitionsView.vue')
-    }
+    },
+    {
+      path: '/acervo',
+      name: 'acervo',
+      component: () => import('../views/acervo/AcervoView.vue')
+    },
   ],
   linkActiveClass: 'active',
   linkExactActiveClass: 'active',
