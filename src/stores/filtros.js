@@ -1,40 +1,61 @@
+// stores/filtros.js
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import ArtefactsService from '@/services/artefactsServices'
+import { useArtefatosStore } from './artefatosStore'
+
 export const useFiltroStore = defineStore('filtro', () => {
+  const artefatosStore = useArtefatosStore()
+
+  // 🔹 valores dos filtros
   const dataMin = ref("")
   const dataMax = ref("")
-  const conservacao = ref([])
-  const colecao = ref([])
-  const material = ref([])
-  const localizacao = ref([])
+  const conservation_status = ref([])
+  const collection_category = ref([])
+  const raw_material = ref([])
+  const localization = ref([])
+  const sub_type = ref([])
+  const archaeological_site = ref([])
 
-  const filtro = computed(() => {
-    let arr = ProdutosStore.produtos
-    if (dataMin.value) arr = arr.filter(e => e.data >= dataMin.value)
-    if (dataMax.value) arr = arr.filter(e => e.data <= dataMax.value)
+  // -----------------------------
+  // 🔥 Monta objeto para API
+  // -----------------------------
+  const filterParams = computed(() => {
+    const obj = {}
 
-    if (conservacao.value.length)
-      arr = arr.filter(e => conservacao.value.includes(e.conservacao))
+    if (dataMin.value) obj.register_date__gte = dataMin.value
+    if (dataMax.value) obj.register_date__lte = dataMax.value
 
-    if (colecao.value.length)
-      arr = arr.filter(e => colecao.value.includes(e.colecao))
+    if (conservation_status.value.length) obj.conservation_status = conservation_status.value.join(',')
+    if (collection_category.value.length) obj.collection_category = collection_category.value.join(',')
+    if (raw_material.value.length) obj.raw_material = raw_material.value.join(',')
+    if (localization.value.length) obj.localization = localization.value.join(',')
+    if (sub_type.value.length) obj.sub_type = sub_type.value.join(',')
+    if (archaeological_site.value.length) obj.archaeological_site = archaeological_site.value.join(',')
 
-    if (material.value.length)
-      arr = arr.filter(e => material.value.includes(e.material))
+    return obj
+  })
 
-    if (localizacao.value.length)
-      arr = arr.filter(e => localizacao.value.includes(e.localizacao))
-
-    return arr
+  // -----------------------------
+  // 🔥 Sempre que os filtros mudarem → chama backend
+  // -----------------------------
+  watch(filterParams, async () => {
+    const data = await ArtefactsService.getFilteredArtefacts(filterParams.value)
+    artefatosStore.artefatos = data.results
   })
 
   return {
+    // valores
     dataMin,
     dataMax,
-    conservacao,
-    colecao,
-    material,
-    localizacao,
-    filtro,
+    conservation_status,
+    collection_category,
+    raw_material,
+    localization,
+    sub_type,
+    archaeological_site,
+
+    // params prontos
+    filterParams,
   }
 })

@@ -6,6 +6,7 @@ import path from 'node:path'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  
   routes: [
     {
       path: '/',
@@ -59,6 +60,14 @@ const router = createRouter({
       component: () => import('../views/acervo/AcervoView.vue')
     },
   ],
+
+scrollBehavior(to, from, savedPosition) {
+    // Retorna o comportamento de scroll desejado.
+    // { top: 0 } fará o scroll ir para o topo (posição 0)
+    // sempre que você navegar para uma nova página.
+    return { top: 0 } 
+  },
+
   linkActiveClass: 'active',
   linkExactActiveClass: 'active',
 })

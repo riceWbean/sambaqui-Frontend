@@ -104,13 +104,30 @@ onMounted(() => {
     }).addTo(window.map)
 
     const popupHTML = `
-      <div style="width: 180px; font-family: Arial;">
-        <img src="${local.imagem}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 6px; margin-bottom: 6px;"/>
-        <h3 style="margin: 0; font-size: 16px; font-weight: bold;">${local.nome}</h3>
-        <p style="margin: 5px 0 10px; font-size: 13px; color: #444;">${local.descricao}</p>
-        <button style="background: #1d3557; color: white; border: none; padding: 8px 10px; width: 100%; border-radius: 6px; cursor: pointer;" onclick="window.open('${local.rota}', '_self')">
-          Ver mais
-        </button>
+      <div style="
+          width: 180px;
+          font-family: Arial;
+      ">
+        <img src="${local.imagem}" style="
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        "/>
+
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        ">${local.nome}</h3>
+
+        <p style="
+            margin: 5px 0 10px;
+            font-size: 13px;
+            color: #444;
+        ">${local.descricao}</p>
+
       </div>
     `
     marker.bindPopup(popupHTML)
