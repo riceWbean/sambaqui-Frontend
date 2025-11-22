@@ -1,0 +1,61 @@
+[
+    {
+        "id": 7,
+        "name": "Crânio",
+        "other_name": "",
+        "dimension_length": 200,
+        "dimension_width": 400,
+        "weigth": 488,
+        "dating": 5000,
+        "conservation_status": 3,
+        "completeness": 2,
+        "detail_conservation_status": 1,
+        "collection_category": 1,
+        "ethnic_group": 1,
+        "technique": 3,
+        "description": "Conjunto de crânio humano, composto de 03 peças, de um indivíduo adulto, com fragmento de maxila esquerda com 04 dentes, mandibula com 12 dentes todos com desgaste acentuado. Três inserções numéricas em cada peça (um da coleção Tiburitus e outro do Instituto de Antropologia IA 16) .",
+        "observation": "30.10.2025 - Este artefato foi pesquisado por Walter Alves Neves, para seu projeto de doutorado (Paleogenetica dos grupos pré-históricos do litoral sul do Brasil (Paraná e Santa Catarina). Universidade de Sâo Paulo, 1984: USP (;tese de doutorado); foi submetido a análise destrutiva pelo projeto Tradition por André Colonese, em outubro de 2019.",
+        "register_date": "2025-11-21",
+        "bibliographic_reference": "Ficha de Cadastro de Acervo 30102025 100% Z2 NEVES, Walter. Paleogenetica dos grupos pré-históricos do litoral sul do Brasil (Paraná e Santa Catarina). 1984. Tese (Doutorado) – Universidade de São Paulo, São Paulo, 1984. . Acesso em: 28 out. 2025; NEVES, Walter Alves, Paleogenetica dos grupos pré-históricos do litoral sul do Brasil (Paraná e Santa Catarina). Pesquisa: série antropologia, n. 43, 1988, São Leopoldo: Instituto Anchietano de Pesquisa.\nNEVES, Walter. Paleogenetica dos grupos pré-históricos do litoral sul do Brasil (Paraná e Santa Catarina). 1984. Tese (Doutorado) – Universidade de São Paulo, São Paulo, 1984. . Acesso em: 28 out. 2025; NEVES, Walter Alves, Paleogenetica dos grupos pré-históricos do litoral sul do Brasil (Paraná e Santa Catarina). Pesquisa: série antropologia, n. 43, 1988, São Leopoldo: Instituto Anchietano de Pesquisa.\nAtivar a compatibilidade com o leitor de tela\nPara ativar o suporte para leitor de tela, pressione Ctrl+Alt+Z Para saber mais sobre atalhos de teclado, pressione Ctrl+barraCoala anônimo abandonou o documento.",
+        "reserved": false,
+        "localization": {
+            "id": 1,
+            "room": "Sala 1",
+            "shelf": "Prateleira 1",
+            "bookcase": "Estante A"
+        },
+        "collection": {
+            "id": 1,
+            "name": "Guilherme Tiburtius",
+            "quantity_artefacts": 12000
+        },
+        "raw_material": {
+            "id": 1,
+            "name": "Animal"
+        },
+        "sub_type": {
+            "id": 1,
+            "name": "Osso",
+            "raw_material": 1
+        },
+        "archaeological_site": {
+            "id": 1,
+            "site": "Porto do Rei (74)",
+            "city": "São Francisco do Sul",
+            "state": "SC",
+            "country": "Brasil"
+        },
+        "images": [
+            {
+                "public_id_cloudinary": "wfrifshxdvvxk44tu4il",
+                "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756788/wfrifshxdvvxk44tu4il.jpg",
+                "artefact": 7
+            },
+            {
+                "public_id_cloudinary": "jwpplkjmahfkzdfycsce",
+                "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756789/jwpplkjmahfkzdfycsce.jpg",
+                "artefact": 7
+            }
+        ]
+    }
+]

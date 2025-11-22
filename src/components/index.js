@@ -4,6 +4,8 @@ import LoginPage from "./logo/LoginPage.vue";
 import topSection from "./about/topSection.vue";
 import distanceSection from "./about/distanceSection.vue";
 import bottomSection from "./about/bottomSection.vue";
+import ExhibitionsContainer from "./exhibitions/exhibitionsContainer.vue";
+import GalleryExhibitions from "./exhibitions/galleryExhibitions.vue";
 
 export {
     ImageRight,
@@ -12,4 +14,6 @@ export {
     topSection,
     distanceSection,
     bottomSection
+    ExhibitionsContainer,
+    GalleryExhibitions
 }

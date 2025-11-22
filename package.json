@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
+    "@vueuse/motion": "^3.0.3",
     "axios": "^1.13.2",
     "font-awesome": "^4.7.0",
     "pinia": "^3.0.3",
