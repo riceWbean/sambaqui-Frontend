@@ -43,13 +43,13 @@
 
       <div class="card-actions">
         <button class="action-btn view" title="Visualizar" @click="$emit('view', artifact)">
-          👁️ Ver
+          Ver
         </button>
         <button class="action-btn edit" title="Editar" @click="$emit('edit', artifact)">
-          ✏️ Editar
+           Editar
         </button>
         <button class="action-btn delete" title="Deletar" @click="$emit('delete', artifact)">
-          🗑️ Deletar
+           Deletar
         </button>
       </div>
     </div>
@@ -71,7 +71,7 @@ export default {
 
 <style scoped>
 .artifact-card {
-  background: white;
+  background: #1e1e1e;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -114,7 +114,9 @@ export default {
 
 .badge-material,
 .badge-status {
-  display: inline-block;
+  justify-content: center;
+  display: flex;
+  align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -174,14 +176,14 @@ export default {
 .card-title {
   margin: 0;
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: #ecf0f1;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .accession-badge {
   background-color: #ecf0f1;
-  color: #2c3e50;
+  color: #24282c;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -211,7 +213,7 @@ export default {
 }
 
 .meta-value {
-  color: #2c3e50;
+  color: #ecf0f1;
   text-align: right;
 }
 
@@ -219,7 +221,7 @@ export default {
 .card-description {
   margin: 0 0 1rem 0;
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: #ecf0f1;
   line-height: 1.4;
   flex: 1;
   overflow: hidden;
@@ -241,7 +243,7 @@ export default {
   padding: 0.5rem;
   border: 1px solid #ecf0f1;
   border-radius: 4px;
-  background: white;
+  background: transparent;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -257,33 +259,33 @@ export default {
 }
 
 .action-btn.view {
-  color: #2980b9;
-  border-color: #d6eaf8;
-  background-color: #ecf7ff;
+  color: #1a91e6;
+  border-color: #1a91e6;
+  background-color: transparent;
 }
 
 .action-btn.view:hover {
-  background-color: #d6eaf8;
+  background-color: #22303a;
 }
 
 .action-btn.edit {
-  color: #f39c12;
-  border-color: #ffeaa7;
-  background-color: #fffbf0;
+  color: #ddec07;
+  border-color: #ddec07;
+  background-color: transparent;
 }
 
 .action-btn.edit:hover {
-  background-color: #ffeaa7;
+  background-color: #4d4634;
 }
 
 .action-btn.delete {
   color: #c0392b;
-  border-color: #fadbd8;
-  background-color: #fff5f5;
+  border-color: #c0392b;
+  background-color: transparent;
 }
 
 .action-btn.delete:hover {
-  background-color: #fadbd8;
+  background-color: #553531;
 }
 
 /* Responsive */

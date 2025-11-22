@@ -1,0 +1,12 @@
+.bottomContainer{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    .infotext{
+        display: flex;
+        flex-direction: column;
+        width: 30vw;
+        gap: 2em;
+    }
+}
