@@ -5,11 +5,11 @@
   >
     <div class="management-container">
       <!-- Stats Overview -->
-      <div class="stats-grid">
-        <StatCard title="Total de Artefatos" value="12,450" color="#3498db" />
-        <StatCard title="Coleções" value="24" color="#2ecc71" />
-        <StatCard title="Sítios Arqueológicos" value="18" color="#e74c3c" />
-        <StatCard title="Materiais Catalogados" value="8" color="#f39c12" />
+      <div class="stats-grid" v-if="showComponent">
+        <StatCard title="Total de Artefatos" :value="dashboardStore.dashboard.total_artefacts" color="#3498db" />
+        <StatCard title="Coleções" :value="dashboardStore.dashboard.total_collections" color="#2ecc71" />
+        <StatCard title="Sítios Arqueológicos" :value="dashboardStore.dashboard.total_archaelogical_site" color="#e74c3c" />
+        <StatCard title="Materiais Catalogados" :value="dashboardStore.dashboard.total_raw_materials" color="#f39c12" />
       </div>
 
       <!-- Main Content Grid -->
@@ -99,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
 import StatCard from '@/components/StatCard.vue'
 import ActionButton from '@/components/ActionButton.vue'
@@ -107,11 +107,21 @@ import VocabCard from '@/components/VocabCard.vue'
 import RecentItemCard from '@/components/RecentItemCard.vue'
 import LocationControl from '@/components/LocationControl.vue'
 import { useRouter } from 'vue-router'
+import { useDashboardStore } from '@/stores'
+
+onMounted(async() => {
+  if (Object.entries(dashboardStore.dashboard).length == 0) {
+    await dashboardStore.getDashboard();
+  }
+  showComponent.value = true;
+})
 
 const router = useRouter()
 const navigateTo = (path) => {
   router.push(path)
 }
+const dashboardStore = useDashboardStore();
+const showComponent = ref(false);
 
 const recentItems = ref([
   {

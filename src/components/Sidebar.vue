@@ -158,10 +158,9 @@ export default {
       return this.$route.path === path || this.$route.path.startsWith(path + '/')
     },
     logout() {
-      if (confirm('Tem certeza que deseja sair?')) {
-        console.log('Logout')
-        // Implementar lógica de logout
-      }
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      this.$router.push('/')
     }
   }
 }
