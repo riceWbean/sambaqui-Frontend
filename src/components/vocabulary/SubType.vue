@@ -1,10 +1,10 @@
 <template>
-    <ManagerLayout page-title="Listagem de Matérias-Primas" breadcrumb="Acervo > Matérias-Primas">
-        <div class="Artefacts-list-container">
+    <ManagerLayout page-title="Listagem de Sub-Tipos" breadcrumb="Acervo > Sub-Tipos">
+        <div class="SubTypes-list-container">
             <!-- Search and Filters Bar -->
             <div class="search-filters-bar">
                 <div class="search-box">
-                    <input v-model="searchQuery" type="text" placeholder="Buscar por nome, descrição..."
+                    <input v-model="searchQuery" type="text" placeholder="Buscar por nome..."
                         class="search-input" />
                 </div>
 
@@ -13,7 +13,7 @@
                 </button>
 
                 <button class="btn-primary" @click="openCreateModal">
-                    Nova Matéria-Prima
+                    Novo Sub-Tipo
                 </button>
             </div>
 
@@ -21,65 +21,13 @@
             <div v-if="showFilters" class="filters-panel">
                 <div class="filters-grid">
                     <div class="filter-group">
-                        <label>Coleção</label>
-                        <select v-model="filters.collection" class="filter-select">
-                            <option value="">Todas</option>
-                            <option value="tiburtius">Tiburtius</option>
-                            <option value="joinville">Joinville</option>
-                            <option value="arqueologia">Arqueologia</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
                         <label>Matéria-Prima</label>
                         <select v-model="filters.rawMaterial" class="filter-select">
                             <option value="">Todas</option>
-                            <option value="animal">Animal</option>
-                            <option value="vegetal">Vegetal</option>
-                            <option value="mineral">Mineral</option>
-                            <option value="outro">Outro</option>
+                            <option v-for="rm in rawMaterials" :key="rm.id" :value="rm.id">
+                                {{ rm.name }}
+                            </option>
                         </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Sub-Tipo</label>
-                        <select v-model="filters.subType" class="filter-select">
-                            <option value="">Todos</option>
-                            <option value="ceramica">Cerâmica</option>
-                            <option value="osso">Osso</option>
-                            <option value="concha">Concha</option>
-                            <option value="pedra">Pedra</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Estado de Conservação</label>
-                        <select v-model="filters.conservationStatus" class="filter-select">
-                            <option value="">Todos</option>
-                            <option value="excelente">Excelente</option>
-                            <option value="bom">Bom</option>
-                            <option value="regular">Regular</option>
-                            <option value="ruim">Ruim</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Localização</label>
-                        <select v-model="filters.location" class="filter-select">
-                            <option value="">Todas</option>
-                            <option value="reserva-antiga">Reserva Antiga</option>
-                            <option value="reserva-nova">Reserva Nova</option>
-                            <option value="exposicao">Em Exposição</option>
-                            <option value="emprestimo">Em Empréstimo</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Período de Datação</label>
-                        <div class="dating-inputs">
-                            <input v-model="filters.datingFrom" type="number" placeholder="De" class="filter-input" />
-                            <input v-model="filters.datingTo" type="number" placeholder="Até" class="filter-input" />
-                        </div>
                     </div>
                 </div>
 
@@ -120,25 +68,25 @@
             <!-- Results -->
             <div class="results-info">
                 <p>Mostrando <strong>{{ paginatedList.length }}</strong> de <strong>{{ filteredList.length }}</strong>
-                    matérias-primas</p>
+                    sub-tipos</p>
             </div>
 
             <!-- TABLE -->
             <div v-if="viewMode === 'table'" class="table-container">
-                <table class="Artefactss-table">
+                <table class="subtypes-table">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Nome</th>
-                            <th>Descrição</th>
+                            <th>Matéria-Prima</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in paginatedList" :key="item.idRawMaterial">
-                            <td class="accession-number">{{ item.idRawMaterial }}</td>
-                            <td class="Artefacts-name">{{ item.name }}</td>
-                            <td class="description-cell">{{ item.description }}</td>
+                        <tr v-for="item in paginatedList" :key="item.id">
+                            <td class="subtype-id">{{ item.id }}</td>
+                            <td class="subtype-name">{{ item.name }}</td>
+                            <td class="raw-material-name">{{ getRawMaterialName(item.rawMaterialId) }}</td>
                             <td class="actions-cell">
                                 <button class="action-btn view" @click="viewItem(item)">Ver</button>
                                 <button class="action-btn edit" @click="openEditModal(item)">Editar</button>
@@ -153,7 +101,7 @@
             <div v-else class="grid-container">
                 <div v-for="item in paginatedList" :key="item.id" class="card">
                     <h4>{{ item.name }}</h4>
-                    <p>{{ item.description }}</p>
+                    <p><strong>Matéria-Prima:</strong> {{ getRawMaterialName(item.rawMaterialId) }}</p>
                 </div>
             </div>
 
@@ -169,26 +117,71 @@
         </div>
 
         <!-- MODAL -->
-        <RawMaterialModal v-model="showModal" :editing="editingItem" @saved="reload" />
+        <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>{{ editingItem ? 'Editar Sub-Tipo' : 'Novo Sub-Tipo' }}</h2>
+                    <button class="modal-close" @click="closeModal">×</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="subtype-name">Nome do Sub-Tipo *</label>
+                        <input
+                            id="subtype-name"
+                            v-model="formData.name"
+                            type="text"
+                            placeholder="Ex: Cerâmica Polida"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subtype-material">Matéria-Prima *</label>
+                        <select v-model="formData.rawMaterialId" id="subtype-material" class="form-select">
+                            <option value="">Selecione uma matéria-prima</option>
+                            <option v-for="rm in rawMaterials" :key="rm.id" :value="rm.id">
+                                {{ rm.name }}
+                            </option>
+                        </select>
+                        <span v-if="formErrors.rawMaterialId" class="error-text">
+                            {{ formErrors.rawMaterialId }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-secondary" @click="closeModal">Cancelar</button>
+                    <button class="btn-primary" @click="saveItem">Salvar</button>
+                </div>
+            </div>
+        </div>
     </ManagerLayout>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
-import RawMaterialModal from '@/components/vocabulary/RawMaterialModal.vue'
 
-// Mock data - sem backend
-const mockRawMaterials = [
-    { idRawMaterial: 1, name: 'Cerâmica Vermelha', description: 'Cerâmica com acabamento polido' },
-    { idRawMaterial: 2, name: 'Osso de Mamífero', description: 'Osso trabalhado para ferramentas' },
-    { idRawMaterial: 3, name: 'Pedra Calcária', description: 'Blocos de pedra para construção' },
-    { idRawMaterial: 4, name: 'Concha de Molusco', description: 'Concha marinha trabalhada' },
-    { idRawMaterial: 5, name: 'Argila Cinzenta', description: 'Argila fina para cerâmica' },
-]
+// Mock data - matérias-primas
+const rawMaterials = ref([
+    { id: 1, name: 'Cerâmica Vermelha' },
+    { id: 2, name: 'Osso de Mamífero' },
+    { id: 3, name: 'Pedra Calcária' },
+    { id: 4, name: 'Concha de Molusco' },
+])
 
-const rawMaterials = ref([])
+// Mock data - sub-tipos
+const subTypes = ref([
+    { id: 1, name: 'Cerâmica Polida', rawMaterialId: 1 },
+    { id: 2, name: 'Cerâmica Pintada', rawMaterialId: 1 },
+    { id: 3, name: 'Ponta de Lança', rawMaterialId: 2 },
+    { id: 4, name: 'Faca de Osso', rawMaterialId: 2 },
+    { id: 5, name: 'Bloco Trabalhado', rawMaterialId: 3 },
+    { id: 6, name: 'Pedra de Sílex', rawMaterialId: 3 },
+])
 
+// UI State
 const searchQuery = ref('')
 const showFilters = ref(false)
 const viewMode = ref('table')
@@ -198,57 +191,39 @@ const itemsPerPage = ref(25)
 const showModal = ref(false)
 const editingItem = ref(null)
 
+// Filters
 const filters = reactive({
-    collection: '',
     rawMaterial: '',
-    subType: '',
-    conservationStatus: '',
-    location: '',
-    datingFrom: '',
-    datingTo: '',
 })
 
+// Form data
+const formData = reactive({
+    name: '',
+    rawMaterialId: '',
+})
+
+const formErrors = reactive({
+    name: '',
+    rawMaterialId: '',
+})
+
+// Computed
 const activeFiltersCount = computed(() =>
     Object.values(filters).filter(v => v !== '').length
 )
 
-// Carregar dados locais (sem backend)
-function loadAll() {
-    // Filtrar itens vazios (sem nome)
-    rawMaterials.value = mockRawMaterials.filter(item => item.name && item.name.trim() !== '')
-}
-
-function openCreateModal() {
-    editingItem.value = null
-    showModal.value = true
-}
-
-function openEditModal(item) {
-    editingItem.value = { ...item }
-    showModal.value = true
-}
-
-function viewItem(item) {
-    console.log('Ver:', item)
-}
-
-function deleteItem(item) {
-    if (!confirm(`Deseja excluir "${item.name}"?`)) return
-    const index = rawMaterials.value.findIndex(r => r.idRawMaterial === item.idRawMaterial)
-    if (index > -1) {
-        rawMaterials.value.splice(index, 1)
-    }
-}
-
 const filteredList = computed(() => {
-    let result = rawMaterials.value
+    let result = subTypes.value
     const q = searchQuery.value.toLowerCase()
 
     if (searchQuery.value) {
         result = result.filter(r =>
-            (r.name || '').toLowerCase().includes(q) ||
-            (r.description || '').toLowerCase().includes(q)
+            (r.name || '').toLowerCase().includes(q)
         )
+    }
+
+    if (filters.rawMaterial) {
+        result = result.filter(r => r.rawMaterialId === parseInt(filters.rawMaterial))
     }
 
     return result
@@ -263,6 +238,93 @@ const totalPages = computed(() =>
     Math.max(1, Math.ceil(filteredList.value.length / itemsPerPage.value))
 )
 
+// Methods
+function getRawMaterialName(id) {
+    const material = rawMaterials.value.find(rm => rm.id === id)
+    return material ? material.name : 'N/A'
+}
+
+function openCreateModal() {
+    editingItem.value = null
+    formData.name = ''
+    formData.rawMaterialId = ''
+    clearFormErrors()
+    showModal.value = true
+}
+
+function openEditModal(item) {
+    editingItem.value = { ...item }
+    formData.name = item.name
+    formData.rawMaterialId = item.rawMaterialId
+    clearFormErrors()
+    showModal.value = true
+}
+
+function viewItem(item) {
+    console.log('Ver:', item)
+}
+
+function deleteItem(item) {
+    if (!confirm(`Deseja excluir "${item.name}"?`)) return
+    const index = subTypes.value.findIndex(st => st.id === item.id)
+    if (index > -1) {
+        subTypes.value.splice(index, 1)
+    }
+}
+
+function clearFormErrors() {
+    formErrors.name = ''
+    formErrors.rawMaterialId = ''
+}
+
+function validateForm() {
+    clearFormErrors()
+    let isValid = true
+
+    if (!formData.name.trim()) {
+        formErrors.name = 'Nome é obrigatório'
+        isValid = false
+    }
+
+    if (!formData.rawMaterialId) {
+        formErrors.rawMaterialId = 'Matéria-Prima é obrigatória'
+        isValid = false
+    }
+
+    return isValid
+}
+
+function saveItem() {
+    if (!validateForm()) return
+
+    if (editingItem.value) {
+        // Editar
+        const index = subTypes.value.findIndex(st => st.id === editingItem.value.id)
+        if (index > -1) {
+            subTypes.value[index].name = formData.name
+            subTypes.value[index].rawMaterialId = parseInt(formData.rawMaterialId)
+        }
+    } else {
+        // Criar
+        const newId = Math.max(...subTypes.value.map(st => st.id), 0) + 1
+        subTypes.value.push({
+            id: newId,
+            name: formData.name,
+            rawMaterialId: parseInt(formData.rawMaterialId),
+        })
+    }
+
+    closeModal()
+}
+
+function closeModal() {
+    showModal.value = false
+    editingItem.value = null
+    formData.name = ''
+    formData.rawMaterialId = ''
+    clearFormErrors()
+}
+
 function applyFilters() {
     currentPage.value = 1
 }
@@ -272,16 +334,10 @@ function clearFilters() {
     searchQuery.value = ''
     currentPage.value = 1
 }
-
-function reload() {
-    loadAll()
-}
-
-onMounted(loadAll)
 </script>
 
 <style scoped>
-.Artefacts-list-container {
+.SubTypes-list-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -297,7 +353,6 @@ onMounted(loadAll)
 .search-box {
     flex: 1;
     min-width: 250px;
-    position: relative;
 }
 
 .search-input {
@@ -347,11 +402,6 @@ onMounted(loadAll)
     border: 1px solid #737373;
 }
 
-tr:hover {
-    background-color: #1b1b1b;
-    cursor: pointer;
-}
-
 /* Filters Panel */
 .filters-panel {
     background: #1e1e1e;
@@ -376,24 +426,14 @@ tr:hover {
 .filter-group label {
     font-weight: 600;
     color: white;
-    font-size: 1rem;
 }
 
-.filter-select,
-.filter-input {
+.filter-select {
     padding: 0.5rem;
     border: 1px solid #737373;
     border-radius: 4px;
     font-size: 0.9rem;
-}
-
-.dating-inputs {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.filter-input {
-    flex: 1;
+    background-color: white;
 }
 
 .filters-actions {
@@ -449,7 +489,6 @@ tr:hover {
 
 .view-btn.active {
     background-color: #737373;
-    color: white;
 }
 
 .sort-options,
@@ -457,11 +496,6 @@ tr:hover {
     display: flex;
     gap: 0.5rem;
     align-items: center;
-}
-
-.sort-options label,
-.items-per-page label {
-    font-weight: 600;
     color: white;
 }
 
@@ -488,50 +522,41 @@ tr:hover {
     overflow-x: auto;
 }
 
-.Artefactss-table {
+.subtypes-table {
     width: 100%;
     border-collapse: collapse;
     color: white;
 }
 
-.Artefactss-table thead {
+.subtypes-table thead {
     background-color: #1e1e1e;
-    color: white;
 }
 
-.Artefactss-table th {
+.subtypes-table th {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
     font-size: 0.9rem;
 }
 
-.Artefactss-table td {
+.subtypes-table td {
     padding: 1rem;
     border-bottom: 1px solid #313131;
 }
 
-.accession-number {
+.subtype-id {
     font-weight: 600;
-    color: white;
     width: 60px;
 }
 
-.Artefacts-name {
+.subtype-name {
     font-weight: 600;
-    color: white;
-    flex: 1;
 }
 
-.description-cell {
+.raw-material-name {
     color: #bdc3c7;
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
-/* CRITICAL FIX - Actions cell alinhadas à direita */
 .actions-cell {
     display: flex;
     gap: 0.5rem;
@@ -554,7 +579,6 @@ tr:hover {
 .action-btn.view {
     color: #ffffffd7;
     border-color: #daeaf5d0;
-    background-color: transparent;
 }
 
 .action-btn.view:hover {
@@ -565,7 +589,6 @@ tr:hover {
 .action-btn.edit {
     color: #f39c12;
     border-color: #f39c12;
-    background-color: transparent;
 }
 
 .action-btn.edit:hover {
@@ -576,7 +599,6 @@ tr:hover {
 .action-btn.delete {
     color: #c0392b;
     border-color: #c0392b;
-    background-color: transparent;
 }
 
 .action-btn.delete:hover {
@@ -615,8 +637,6 @@ tr:hover {
     align-items: center;
     gap: 1rem;
     padding: 1.5rem;
-    background: transparent;
-    border-radius: 8px;
 }
 
 .pagination-btn {
@@ -644,14 +664,104 @@ tr:hover {
     font-weight: 600;
 }
 
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #313131;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.form-input,
+.form-select {
+    padding: 0.75rem;
+    border: 1px solid #737373;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    color: #1e1e1e;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.error-text {
+    color: #c0392b;
+    font-size: 0.85rem;
+    margin-top: -0.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    border-top: 1px solid #313131;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .search-filters-bar {
         flex-direction: column;
-    }
-
-    .search-box {
-        min-width: auto;
     }
 
     .view-options {
@@ -664,18 +774,22 @@ tr:hover {
         grid-template-columns: 1fr;
     }
 
-    .Artefactss-table {
+    .subtypes-table {
         font-size: 0.85rem;
     }
 
-    .Artefactss-table th,
-    .Artefactss-table td {
+    .subtypes-table th,
+    .subtypes-table td {
         padding: 0.5rem;
     }
 
     .actions-cell {
         flex-direction: column;
         gap: 0.25rem;
+    }
+
+    .modal-content {
+        width: 95%;
     }
 }
 </style>
