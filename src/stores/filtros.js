@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import ArtefactsService from '@/services/artefactsServices'
-import { useArtefatosStore } from './artefatosStore'
+import { useArtefatosStore } from './artefatoCliente'
 
 export const useFiltroStore = defineStore('filtro', () => {
   const artefatosStore = useArtefatosStore()
