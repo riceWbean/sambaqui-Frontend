@@ -38,6 +38,11 @@ class ArtefactsService {
         }
     }
 
+    async createArtefact(formData) {
+        const response = await api.post('/artefacts/', formData);
+        return response.data;
+    }
+
     async updateArtefact(id, ArtefactsData) {
         try {
             await api.put(`/artefacts/${id}`, ArtefactsData);
