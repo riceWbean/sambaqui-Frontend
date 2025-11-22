@@ -46,14 +46,6 @@
                         @click="viewMode = 'grid'">Grade</button>
                 </div>
 
-                <div class="sort-options">
-                    <label>Ordenar por:</label>
-                    <select v-model="sortBy" class="sort-select">
-                        <option value="recent">Mais Recentes</option>
-                        <option value="name">Nome (A-Z)</option>
-                    </select>
-                </div>
-
                 <div class="items-per-page">
                     <label>Itens por página:</label>
                     <select v-model.number="itemsPerPage" class="items-select">
@@ -79,16 +71,15 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Matéria-Prima</th>
-                            <th>Ações</th>
+                            <th style="text-align: end;">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="item in paginatedList" :key="item.id">
                             <td class="subtype-id">{{ item.id }}</td>
                             <td class="subtype-name">{{ item.name }}</td>
-                            <td class="raw-material-name">{{ getRawMaterialName(item.rawMaterialId) }}</td>
+                            <td class="raw-material-name">{{ getRawMaterialName(item.raw_material_id) }}</td>
                             <td class="actions-cell">
-                                <button class="action-btn view" @click="viewItem(item)">Ver</button>
                                 <button class="action-btn edit" @click="openEditModal(item)">Editar</button>
                                 <button class="action-btn delete" @click="deleteItem(item)">Excluir</button>
                             </td>
@@ -101,7 +92,7 @@
             <div v-else class="grid-container">
                 <div v-for="item in paginatedList" :key="item.id" class="card">
                     <h4>{{ item.name }}</h4>
-                    <p><strong>Matéria-Prima:</strong> {{ getRawMaterialName(item.rawMaterialId) }}</p>
+                    <p><strong>Matéria-Prima:</strong> {{ getRawMaterialName(item.raw_material_id) }}</p>
                 </div>
             </div>
 
@@ -160,26 +151,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
+import { useRawMaterialStore } from '@/stores/useRawMaterialStore'
+import { useSubTypeStore } from '@/stores/useSubTypeStore'
 
-// Mock data - matérias-primas
-const rawMaterials = ref([
-    { id: 1, name: 'Cerâmica Vermelha' },
-    { id: 2, name: 'Osso de Mamífero' },
-    { id: 3, name: 'Pedra Calcária' },
-    { id: 4, name: 'Concha de Molusco' },
-])
+// stores
+const rawMaterialStore = useRawMaterialStore()
+const subTypeStore = useSubTypeStore()
 
-// Mock data - sub-tipos
-const subTypes = ref([
-    { id: 1, name: 'Cerâmica Polida', rawMaterialId: 1 },
-    { id: 2, name: 'Cerâmica Pintada', rawMaterialId: 1 },
-    { id: 3, name: 'Ponta de Lança', rawMaterialId: 2 },
-    { id: 4, name: 'Faca de Osso', rawMaterialId: 2 },
-    { id: 5, name: 'Bloco Trabalhado', rawMaterialId: 3 },
-    { id: 6, name: 'Pedra de Sílex', rawMaterialId: 3 },
-])
+// reactive lists from stores
+const rawMaterials = rawMaterialStore.list
+const subTypes = ref([])
 
 // UI State
 const searchQuery = ref('')
@@ -192,38 +175,29 @@ const showModal = ref(false)
 const editingItem = ref(null)
 
 // Filters
-const filters = reactive({
-    rawMaterial: '',
-})
+const filters = reactive({ rawMaterial: '' })
 
 // Form data
-const formData = reactive({
-    name: '',
-    rawMaterialId: '',
-})
-
-const formErrors = reactive({
-    name: '',
-    rawMaterialId: '',
-})
+const formData = reactive({ name: '', rawMaterialId: '' })
+const formErrors = reactive({ name: '', rawMaterialId: '' })
 
 // Computed
-const activeFiltersCount = computed(() =>
-    Object.values(filters).filter(v => v !== '').length
-)
+const activeFiltersCount = computed(() => Object.values(filters).filter(v => v !== '').length)
 
 const filteredList = computed(() => {
-    let result = subTypes.value
-    const q = searchQuery.value.toLowerCase()
+    let result = subTypes.value || []
+    const q = (searchQuery.value || '').toLowerCase()
 
     if (searchQuery.value) {
-        result = result.filter(r =>
-            (r.name || '').toLowerCase().includes(q)
-        )
+        result = result.filter(r => (r.name || '').toLowerCase().includes(q))
     }
 
     if (filters.rawMaterial) {
-        result = result.filter(r => r.rawMaterialId === parseInt(filters.rawMaterial))
+        const id = parseInt(filters.rawMaterial)
+        result = result.filter(r => {
+            const rid = r.raw_material ?? r.rawMaterialId ?? r.raw_material_id
+            return Number(rid) === id
+        })
     }
 
     return result
@@ -234,14 +208,16 @@ const paginatedList = computed(() => {
     return filteredList.value.slice(start, start + itemsPerPage.value)
 })
 
-const totalPages = computed(() =>
-    Math.max(1, Math.ceil(filteredList.value.length / itemsPerPage.value))
-)
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredList.value.length / itemsPerPage.value)))
 
 // Methods
 function getRawMaterialName(id) {
-    const material = rawMaterials.value.find(rm => rm.id === id)
+    const material = (rawMaterials || []).find(rm => rm.id === id)
     return material ? material.name : 'N/A'
+}
+
+function normalizeRawMaterialId(item) {
+    return item.raw_material ?? item.rawMaterialId ?? item.raw_material_id ?? null
 }
 
 function openCreateModal() {
@@ -255,66 +231,52 @@ function openCreateModal() {
 function openEditModal(item) {
     editingItem.value = { ...item }
     formData.name = item.name
-    formData.rawMaterialId = item.rawMaterialId
+    formData.rawMaterialId = normalizeRawMaterialId(item)
     clearFormErrors()
     showModal.value = true
 }
 
-function viewItem(item) {
-    console.log('Ver:', item)
-}
+function viewItem(item) { console.log('Ver:', item) }
 
-function deleteItem(item) {
+async function deleteItem(item) {
     if (!confirm(`Deseja excluir "${item.name}"?`)) return
-    const index = subTypes.value.findIndex(st => st.id === item.id)
-    if (index > -1) {
-        subTypes.value.splice(index, 1)
+    try {
+        const id = item.id
+        await subTypeStore.remove(id)
+    } catch (err) {
+        console.error('Erro ao excluir', err)
+        alert('Erro ao excluir.')
     }
 }
 
-function clearFormErrors() {
-    formErrors.name = ''
-    formErrors.rawMaterialId = ''
-}
+function clearFormErrors() { formErrors.name = ''; formErrors.rawMaterialId = '' }
 
 function validateForm() {
     clearFormErrors()
     let isValid = true
-
-    if (!formData.name.trim()) {
-        formErrors.name = 'Nome é obrigatório'
-        isValid = false
-    }
-
-    if (!formData.rawMaterialId) {
-        formErrors.rawMaterialId = 'Matéria-Prima é obrigatória'
-        isValid = false
-    }
-
+    if (!formData.name || !formData.name.trim()) { formErrors.name = 'Nome é obrigatório'; isValid = false }
+    if (!formData.rawMaterialId) { formErrors.rawMaterialId = 'Matéria-Prima é obrigatória'; isValid = false }
     return isValid
 }
 
-function saveItem() {
+async function saveItem() {
     if (!validateForm()) return
 
-    if (editingItem.value) {
-        // Editar
-        const index = subTypes.value.findIndex(st => st.id === editingItem.value.id)
-        if (index > -1) {
-            subTypes.value[index].name = formData.name
-            subTypes.value[index].rawMaterialId = parseInt(formData.rawMaterialId)
-        }
-    } else {
-        // Criar
-        const newId = Math.max(...subTypes.value.map(st => st.id), 0) + 1
-        subTypes.value.push({
-            id: newId,
-            name: formData.name,
-            rawMaterialId: parseInt(formData.rawMaterialId),
-        })
-    }
+    const payload = { name: formData.name.trim(), raw_material: Number(formData.rawMaterialId) }
 
-    closeModal()
+    try {
+        if (editingItem.value) {
+            const id = editingItem.value.id
+            await subTypeStore.update(id, payload)
+        } else {
+            await subTypeStore.create(payload)
+        }
+
+        closeModal()
+    } catch (err) {
+        console.error('Erro ao salvar', err)
+        alert('Erro ao salvar. Veja console.')
+    }
 }
 
 function closeModal() {
@@ -325,15 +287,16 @@ function closeModal() {
     clearFormErrors()
 }
 
-function applyFilters() {
-    currentPage.value = 1
-}
+function applyFilters() { currentPage.value = 1 }
 
-function clearFilters() {
-    Object.keys(filters).forEach(k => filters[k] = '')
-    searchQuery.value = ''
-    currentPage.value = 1
-}
+function clearFilters() { Object.keys(filters).forEach(k => filters[k] = ''); searchQuery.value = ''; currentPage.value = 1 }
+
+// load data
+onMounted(async () => {
+    await rawMaterialStore.fetchAll()
+    // store.fetchAll agora retorna os dados — armazenar localmente
+    subTypes.value = await subTypeStore.fetchAll()
+})
 </script>
 
 <style scoped>
