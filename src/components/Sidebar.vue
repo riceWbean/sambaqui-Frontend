@@ -40,10 +40,10 @@
             </router-link>
           </li>
           <li>
-            <router-link 
-              to="/artifacts/new" 
+            <router-link
+              to="/management/add"
               class="nav-link"
-              :class="{ active: isActive('/artifacts/new') }"
+              :class="{ active: isActive('/management/add') }"
             >
               <span class="nav-text">Novo Artefato</span>
             </router-link>

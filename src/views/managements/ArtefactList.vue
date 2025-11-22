@@ -1,6 +1,7 @@
 <template>
   <ManagerLayout page-title="Listagem de Artefatos" breadcrumb="Acervo > Listagem de Artefatos">
     <div class="Artefacts-list-container">
+      
       <!-- Search and Filters Bar -->
       <div class="search-filters-bar">
         <div class="search-box">
@@ -11,11 +12,9 @@
             class="search-input"
           />
         </div>
-
         <button class="filter-toggle" @click="showFilters = !showFilters">
           Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : '' }}
         </button>
-
         <button class="btn-primary" @click="showNewArtefactsModal = true">
           Novo Artefato
         </button>
@@ -24,118 +23,70 @@
       <!-- Filters Panel -->
       <div v-if="showFilters" class="filters-panel">
         <div class="filters-grid">
-          <!-- Collection Filter -->
           <div class="filter-group">
             <label>Coleção</label>
             <select v-model="filters.collection" class="filter-select">
               <option value="">Todas</option>
-              <option value="tiburtius">Tiburtius</option>
-              <option value="joinville">Joinville</option>
-              <option value="arqueologia">Arqueologia</option>
+              <option value="Tibutius">Tibutius</option>
+              <option value="Joinville">Joinville</option>
+              <option value="Arqueologia">Arqueologia</option>
             </select>
           </div>
-
-          <!-- Raw Material Filter -->
           <div class="filter-group">
             <label>Matéria-Prima</label>
             <select v-model="filters.rawMaterial" class="filter-select">
               <option value="">Todas</option>
-              <option value="animal">Animal</option>
-              <option value="vegetal">Vegetal</option>
-              <option value="mineral">Mineral</option>
-              <option value="outro">Outro</option>
+              <option value="Cerâmica">Cerâmica</option>
+              <option value="Animal">Animal</option>
+              <option value="Vegetal">Vegetal</option>
+              <option value="Mineral">Mineral</option>
             </select>
           </div>
-
-          <!-- Sub-Type Filter -->
-          <div class="filter-group">
-            <label>Sub-Tipo</label>
-            <select v-model="filters.subType" class="filter-select">
-              <option value="">Todos</option>
-              <option value="ceramica">Cerâmica</option>
-              <option value="osso">Osso</option>
-              <option value="concha">Concha</option>
-              <option value="pedra">Pedra</option>
-            </select>
-          </div>
-
-          <!-- Conservation Status Filter -->
           <div class="filter-group">
             <label>Estado de Conservação</label>
             <select v-model="filters.conservationStatus" class="filter-select">
               <option value="">Todos</option>
-              <option value="excelente">Excelente</option>
-              <option value="bom">Bom</option>
-              <option value="regular">Regular</option>
-              <option value="ruim">Ruim</option>
+              <option :value="1">Perfeito</option>
+              <option :value="2">Bom</option>
+              <option :value="3">Regular</option>
+              <option :value="4">Ruim</option>
+              <option :value="5">Crítico</option>
+              <option :value="6">Irreversível</option>
             </select>
           </div>
-
-          <!-- Location Filter -->
           <div class="filter-group">
             <label>Localização</label>
             <select v-model="filters.location" class="filter-select">
               <option value="">Todas</option>
-              <option value="reserva-antiga">Reserva Antiga</option>
-              <option value="reserva-nova">Reserva Nova</option>
-              <option value="exposicao">Em Exposição</option>
-              <option value="emprestimo">Em Empréstimo</option>
+              <option value="Reserva Antiga">Reserva Antiga</option>
+              <option value="Reserva Nova">Reserva Nova</option>
+              <option value="Em Exposição">Em Exposição</option>
             </select>
           </div>
-
-          <!-- Dating Filter -->
-          <div class="filter-group">
-            <label>Período de Datação</label>
-            <div class="dating-inputs">
-              <input
-                v-model="filters.datingFrom"
-                type="number"
-                placeholder="De"
-                class="filter-input"
-              />
-              <input
-                v-model="filters.datingTo"
-                type="number"
-                placeholder="Até"
-                class="filter-input"
-              />
-            </div>
-          </div>
         </div>
-
         <div class="filters-actions">
           <button class="btn-secondary" @click="clearFilters">Limpar Filtros</button>
-          <button class="btn-primary" @click="applyFilters">Aplicar Filtros</button>
         </div>
       </div>
 
-      <!-- View Options -->
+      <!-- View Toggle + Sort + Pagination Options -->
       <div class="view-options">
         <div class="view-toggle">
-          <button
-            :class="['view-btn', { active: viewMode === 'table' }]"
-            @click="viewMode = 'table'"
-          >
+          <button :class="['view-btn', { active: viewMode === 'table' }]" @click="viewMode = 'table'">
             Tabela
           </button>
-          <button
-            :class="['view-btn', { active: viewMode === 'grid' }]"
-            @click="viewMode = 'grid'"
-          >
+          <button :class="['view-btn', { active: viewMode === 'grid' }]" @click="viewMode = 'grid'">
             Grade
           </button>
         </div>
-
         <div class="sort-options">
           <label>Ordenar por:</label>
           <select v-model="sortBy" class="sort-select">
             <option value="recent">Mais Recentes</option>
             <option value="name">Nome (A-Z)</option>
-            <option value="accession">Número de Acervo</option>
-            <option value="collection">Coleção</option>
+            <option value="id">Número de Acervo</option>
           </select>
         </div>
-
         <div class="items-per-page">
           <label>Itens por página:</label>
           <select v-model.number="itemsPerPage" class="items-select">
@@ -149,10 +100,10 @@
 
       <!-- Results Info -->
       <div class="results-info">
-        <p>Mostrando <strong>{{ 0 }}</strong> de <strong>{{ 0 }}</strong> artefatos</p>
+        <p>Mostrando <strong>{{ paginatedArtefacts.length }}</strong> de <strong>{{ filteredArtefacts.length }}</strong> artefatos</p>
       </div>
 
-      <!-- Table View -->
+      <!-- TABLE VIEW -->
       <div v-if="viewMode === 'table'" class="table-container">
         <table class="Artefactss-table">
           <thead>
@@ -166,73 +117,106 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="Artefact in Artefacts" :key="Artefact.id" class="Artefacts-row">
+            <tr v-for="Artefact in paginatedArtefacts" :key="Artefact.id" class="Artefacts-row">
               <td class="accession-number">{{ Artefact.id }}</td>
               <td class="Artefacts-name">{{ Artefact.name }}</td>
-              <td>{{ Artefact.collection.name }}</td>
+              <td>{{ Artefact.collection?.name }}</td>
               <td>
-                <span class="badge" :class="(Artefact.rawMaterial || '').toString().toLowerCase()">
-                  {{ Artefact.raw_material.name }}
+                <span class="badge" :class="(Artefact.raw_material?.name || '').toLowerCase()">
+                  {{ Artefact.raw_material?.name }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" :class="(Artefact.conservationStatus || '').toString().toLowerCase()">
+                <span class="status-badge" :class="stateConverter(Artefact.conservation_status).toLowerCase()">
                   {{ stateConverter(Artefact.conservation_status) }}
                 </span>
               </td>
-              <td>{{ Artefact.localization.room }}</td>
+              <td>{{ Artefact.localization?.room }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <!-- Grid View -->
+
+      <!-- GRID VIEW -->
       <div v-else class="grid-container">
-        <ArtefactsCard
-          v-for="Artefacts in paginatedArtefacts"
-          :key="Artefacts.id"
-          :Artefacts="Artefacts"
-          @view="viewArtefacts"
-          @edit="editArtefacts"
-          @delete="deleteArtefacts"
-        />
+        <div v-for="Artefact in paginatedArtefacts" :key="Artefact.id" class="grid-card">
+          <div class="card-image-wrapper">
+            <img
+              v-if="Artefact.images?.length || Artefact.image_url || Artefact.photo"
+              :src="
+          Artefact.images?.[0]?.secure_url ||
+          (Artefact.images?.[0]?.url
+            ? Artefact.images[0].url.replace('/upload/', '/upload/f_auto,q_auto,w_400,h_300,c_fill/')
+            : '') ||
+          (Artefact.image_url
+            ? Artefact.image_url.replace('/upload/', '/upload/f_auto,q_auto,w_400,h_300,c_fill/')
+            : '') ||
+          Artefact.photo
+              "
+              :alt="Artefact.name"
+              class="card-image"
+              loading="lazy"
+              @error="($event.target.src = '/fallback-image.png')"
+            />
+            <div v-else class="card-image-placeholder">Sem imagem</div>
+          </div>
+          <div class="card-header">
+        <h4 class="card-title">{{ Artefact.name }}</h4>
+        <span class="accession-badge">{{ Artefact.id }}</span>
+          </div>
+          <div class="card-meta">
+        <div class="meta-row">
+          <span class="meta-label">Coleção:</span>
+          <span class="meta-value">{{ Artefact.collection?.name }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Matéria-Prima:</span>
+          <span class="meta-value">{{ Artefact.raw_material?.name }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Estado:</span>
+          <span class="meta-value">{{ stateConverter(Artefact.conservation_status) }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Localização:</span>
+          <span class="meta-value">{{ Artefact.localization?.room }}</span>
+        </div>
+          </div>
+          <div class="card-actions">
+        <button class="action-btn view" @click="viewArtefact(Artefact)">Ver</button>
+        <button class="action-btn edit" @click="editArtefact(Artefact)">Editar</button>
+        <button class="action-btn delete" @click="deleteArtefact(Artefact)">Deletar</button>
+          </div>
+        </div>
+      </div>
       </div>
 
       <!-- Pagination -->
       <div class="pagination">
-        <button
-          :disabled="currentPage === 1"
-          @click="currentPage--"
-          class="pagination-btn"
-        >
+        <button :disabled="currentPage === 1" @click="currentPage--" class="pagination-btn">
           Anterior
         </button>
-
         <div class="pagination-info">
           Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong>
         </div>
-
-        <button
-          :disabled="currentPage === totalPages"
-          @click="currentPage++"
-          class="pagination-btn"
-        >
+        <button :disabled="currentPage === totalPages" @click="currentPage++" class="pagination-btn">
           Próxima
         </button>
       </div>
-    </div>
+
   </ManagerLayout>
 </template>
 
-<script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import ManagerLayout from '@/layouts/ManagerLayout.vue'
-import ArtefactCard from '@/components/ArtefactCard.vue'
-import { useArtefactsStore } from '@/stores/useArtefactStore'
 
-const Artefacts = ref([])
+<script setup>
+import { ref, reactive, computed, onMounted, watch } from 'vue'
+import ManagerLayout from '@/layouts/ManagerLayout.vue'
+import { useArtefactsStore } from '@/stores/useArtefactStore'
 
 const store = useArtefactsStore()
 
+// REFS
+const artefactsList = ref([])
 const searchQuery = ref('')
 const showFilters = ref(false)
 const viewMode = ref('table')
@@ -240,117 +224,120 @@ const sortBy = ref('recent')
 const currentPage = ref(1)
 const itemsPerPage = ref(25)
 const showNewArtefactsModal = ref(false)
+
+// FILTERS
 const filters = reactive({
   collection: '',
   rawMaterial: '',
-  subType: '',
   conservationStatus: '',
   location: '',
-  datingFrom: '',
-  datingTo: '',
 })
 
+// CONVERTER
 function stateConverter(item) {
   switch(item) {
-    case 1:
-      return 'Perfeito'
-    case 2:
-      return 'Bom'
-    case 3:
-      return 'Regular'
-    case 4:
-      return 'Ruim'
-    case 5:
-      return 'Crítico'
-    case 6:
-      return 'Irreversível'
+    case 1: return 'Perfeito'
+    case 2: return 'Bom'
+    case 3: return 'Regular'
+    case 4: return 'Ruim'
+    case 5: return 'Crítico'
+    case 6: return 'Irreversível'
+    default: return 'Desconhecido'
   }
 }
 
+// COMPUTED - Filtrados
 const filteredArtefacts = computed(() => {
-  let result = Artefacts.value
+  let result = artefactsList.value
 
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     result = result.filter(a =>
       (a.name || '').toLowerCase().includes(q) ||
-      (a.accessionNumber || '').toLowerCase().includes(q) ||
-      (a.description || '').toLowerCase().includes(q)
+      (a.id || '').toLowerCase().includes(q)
     )
   }
 
-  if (filters.collection) result = result.filter(a => a.collection === filters.collection)
-  if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
-  if (filters.subType) result = result.filter(a => a.subType === filters.subType)
-  if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
-  if (filters.location) result = result.filter(a => a.location === filters.location)
+  if (filters.collection) {
+    result = result.filter(a => a.collection?.name === filters.collection)
+  }
+  if (filters.rawMaterial) {
+    result = result.filter(a => a.raw_material?.name === filters.rawMaterial)
+  }
+  if (filters.conservationStatus) {
+    result = result.filter(a => a.conservation_status == filters.conservationStatus)
+  }
+  if (filters.location) {
+    result = result.filter(a => a.localization?.room === filters.location)
+  }
 
   return result
 })
 
+// COMPUTED - Paginados
 const paginatedArtefacts = computed(() => {
+  if (!filteredArtefacts.value || filteredArtefacts.value.length === 0) {
+    return []
+  }
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
   return filteredArtefacts.value.slice(start, end)
 })
 
-const totalPages = computed(() => Math.ceil(filteredArtefacts.value.length / itemsPerPage.value))
-const activeFiltersCount = computed(() => Object.values(filters).filter(v => v !== '').length)
+// COMPUTED - Total de páginas
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredArtefacts.value.length / itemsPerPage.value))
+})
 
-function applyFilters() {
-  currentPage.value = 1
-  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
-}
+// COMPUTED - Contagem de filtros ativos
+const activeFiltersCount = computed(() => {
+  return Object.values(filters).filter(v => v !== '').length
+})
 
+// METHODS
 function clearFilters() {
   filters.collection = ''
   filters.rawMaterial = ''
-  filters.subType = ''
   filters.conservationStatus = ''
   filters.location = ''
-  filters.datingFrom = ''
-  filters.datingTo = ''
   searchQuery.value = ''
   currentPage.value = 1
-  loadArtefacts()
 }
 
-function viewArtefacts(Artefacts) {
-  console.log('Visualizar artefato:', Artefacts)
+function viewArtefact(Artefact) {
+  console.log('Visualizar artefato:', Artefact)
 }
 
-function editArtefact(Artefacts) {
-  console.log('Editar artefato:', Artefacts)
+function editArtefact(Artefact) {
+  console.log('Editar artefato:', Artefact)
 }
 
-async function deleteArtefact(Artefacts) {
-  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
+function deleteArtefact(Artefact) {
+  if (!confirm(`Tem certeza que deseja deletar "${Artefact.name}"?`)) return
+  artefactsList.value = artefactsList.value.filter(a => a.id !== Artefact.id)
+}
+
+async function loadArtefacts() {
   try {
-    await store.remove(Artefacts.id)
-    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
-  } catch (e) {
-    console.error('Erro ao deletar artefato:', e)
-  }
-}
-
-async function loadArtefacts(options) {
-  try {
-  const data = await store.fetchAll(options)
-    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
-    console.log('[ArtefactList] normalized list:', list)
-    Artefacts.value = Array.isArray(list) ? list : []
+    const data = await store.fetchAll()
+    artefactsList.value = Array.isArray(data) ? data : []
   } catch (e) {
     console.error('Erro ao carregar artefatos:', e)
   }
 }
 
-watch(itemsPerPage, () => { currentPage.value = 1 })
-
-onMounted( async () => {
-  await loadArtefacts()
+// LIFECYCLE
+onMounted(() => {
+  loadArtefacts()
 })
 
+// WATCHERS
+watch(itemsPerPage, () => {
+  currentPage.value = 1
+})
 </script>
+
+
 
 <style scoped>
 .Artefacts-list-container {
@@ -359,7 +346,7 @@ onMounted( async () => {
   gap: 1.5rem;
 }
 
-/* Search and Filters */
+/* Search and Filters Bar */
 .search-filters-bar {
   display: flex;
   gap: 1rem;
@@ -369,13 +356,12 @@ onMounted( async () => {
 .search-box {
   flex: 1;
   min-width: 250px;
-  position: relative;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem;
-  border: 1px solid transparent;
+  padding: 0.75rem 1rem;
+  border: 1px solid #737373;
   background-color: #1e1e1e;
   color: white;
   border-radius: 6px;
@@ -385,43 +371,26 @@ onMounted( async () => {
 
 .search-input:focus {
   outline: none;
-  border-color: #737373;
+  border-color: #2980b9;
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
-.filter-toggle {
-  background-color: #1e1e1e;
-  border: 1px solid transparent;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  color: white;
-  transition: all 0.3s;
-}
 
-.filter-toggle:hover {
-  border-color: #737373;
-}
-
+.filter-toggle,
 .btn-primary {
   background-color: #1e1e1e;
   color: white;
-  border: none;
+  border: 1px solid #737373;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
-  border: 1px solid transparent
 }
 
+.filter-toggle:hover,
 .btn-primary:hover {
-  border: 1px solid #737373;
-}
-
-tr:hover{
-  background-color: #1b1b1b;
-  cursor: pointer;
+  border-color: #2980b9;
+  background-color: #262626;
 }
 
 /* Filters Panel */
@@ -433,10 +402,10 @@ tr:hover{
 }
 
 .filters-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  margin-bottom: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .filter-group {
@@ -448,24 +417,16 @@ tr:hover{
 .filter-group label {
   font-weight: 600;
   color: white;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
-.filter-select,
-.filter-input {
+.filter-select {
   padding: 0.5rem;
   border: 1px solid #737373;
   border-radius: 4px;
   font-size: 0.9rem;
-}
-
-.dating-inputs {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.filter-input {
-  flex: 1;
+  background-color: #262626;
+  color: white;
 }
 
 .filters-actions {
@@ -477,7 +438,7 @@ tr:hover{
 .btn-secondary {
   background-color: #737373;
   color: white;
-  border: 1px solid transparent;
+  border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -496,14 +457,14 @@ tr:hover{
   align-items: center;
   flex-wrap: wrap;
   padding: 1rem;
+  background: #1e1e1e;
   border-radius: 6px;
 }
 
 .view-toggle {
   display: flex;
   gap: 0.5rem;
-  color: white;
-  background: #1e1e1e;
+  background: #262626;
   border-radius: 6px;
   padding: 0.25rem;
 }
@@ -535,14 +496,16 @@ tr:hover{
 .items-per-page label {
   font-weight: 600;
   color: white;
+  font-size: 0.9rem;
 }
 
 .sort-select,
 .items-select {
   padding: 0.5rem;
-  border: 1px solid #ecf0f1;
+  border: 1px solid #737373;
   border-radius: 4px;
-  background: white;
+  background-color: #262626;
+  color: white;
 }
 
 /* Results Info */
@@ -551,7 +514,7 @@ tr:hover{
   font-size: 0.95rem;
 }
 
-/* Table View */
+/* TABLE VIEW */
 .table-container {
   background: #1e1e1e;
   border-radius: 8px;
@@ -567,8 +530,7 @@ tr:hover{
 }
 
 .Artefactss-table thead {
-  background-color: #1e1e1e;
-  color: white;
+  background-color: #262626;
 }
 
 .Artefactss-table th {
@@ -576,6 +538,7 @@ tr:hover{
   text-align: left;
   font-weight: 600;
   font-size: 0.9rem;
+  border-bottom: 1px solid #313131;
 }
 
 .Artefactss-table td {
@@ -583,11 +546,12 @@ tr:hover{
   border-bottom: 1px solid #313131;
 }
 
-.accession-number {
-  font-weight: 600;
-  color: white;
+.Artefacts-row:hover {
+  background-color: #262626;
+  cursor: pointer;
 }
 
+.accession-number,
 .Artefacts-name {
   font-weight: 600;
   color: white;
@@ -600,116 +564,191 @@ tr:hover{
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-}
-
-.badge.animal {
-  border: 1px solid #d5f4e6;
-  color: #d5f4e6;
-}
-
-.badge.vegetal {
-  border: 1px solid #ffeaa7;
-  color: #1e1e1e;
-}
-
-.badge.mineral {
-  border: 1px solid #d193e9;
-  color: #d193e9;
+  border: 1px solid;
 }
 
 .badge.cerâmica {
-  border: 1px solid hsl(9, 55%, 62%);
+  border-color: hsl(9, 55%, 62%);
   color: hsl(9, 55%, 62%);
 }
 
-.status-badge.excelente {
-  border: 1px solid #2baa71;
+.badge.animal {
+  border-color: #2baa71;
+  color: #2baa71;
+}
+
+.badge.vegetal {
+  border-color: #ffeaa7;
+  color: #ffeaa7;
+}
+
+.badge.mineral {
+  border-color: #d193e9;
+  color: #d193e9;
+}
+
+.status-badge.perfeito {
+  border-color: #2baa71;
   color: #2baa71;
 }
 
 .status-badge.bom {
-  border: 1px solid #6e86d6;
+  border-color: #6e86d6;
   color: #6e86d6;
 }
 
 .status-badge.regular {
-  border: 1px solid #ffeaa7;
+  border-color: #ffeaa7;
   color: #ffeaa7;
 }
 
 .status-badge.ruim {
-  border: 1px solid #fadbd8;
+  border-color: #fadbd8;
   color: #fadbd8;
 }
 
-.actions-cell {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.action-btn {
-  background: transparent;
-  border: 1px solid #ecf0f1;
-  cursor: pointer;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.action-btn.view {
-  color: #ffffffd7;
-  border-color: #daeaf5d0;
-  background-color: transparent;
-  
-}
-
-.action-btn.view:hover {
-  background-color: #d6eaf8;
-}
-
-.action-btn.edit {
+.status-badge.crítico {
+  border-color: #f39c12;
   color: #f39c12;
-  border-color: #ffeaa7;
-  background-color: #fffbf0;
 }
 
-.action-btn.edit:hover {
-  background-color: #ffeaa7;
-}
-
-.action-btn.delete {
+.status-badge.irreversível {
+  border-color: #c0392b;
   color: #c0392b;
-  border-color: #fadbd8;
-  background-color: #fff5f5;
 }
 
-.action-btn.delete:hover {
-  background-color: #fadbd8;
-}
-
-/* Grid View */
+/* GRID VIEW */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-/* Pagination */
+.grid-card {
+  background: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #313131;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.grid-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-color: #737373;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: white;
+  font-weight: 700;
+  flex: 1;
+}
+
+.accession-badge {
+  background-color: #262626;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: #7f8c8d;
+  min-width: 100px;
+}
+
+.meta-value {
+  color: white;
+  text-align: right;
+}
+
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.5rem;
+  border: 1px solid;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-btn.view {
+  color: #1a91e6;
+  border-color: #1a91e6;
+}
+
+.action-btn.view:hover {
+  background-color: rgba(26, 145, 230, 0.1);
+}
+
+.action-btn.edit {
+  color: #ddec07;
+  border-color: #ddec07;
+}
+
+.action-btn.edit:hover {
+  background-color: rgba(221, 236, 7, 0.1);
+}
+
+.action-btn.delete {
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+.action-btn.delete:hover {
+  background-color: rgba(192, 57, 43, 0.1);
+}
+
+/* PAGINATION */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: transparent;
-  border-radius: 8px;
 }
 
 .pagination-btn {
   background-color: #737373;
-  color: #1e1e1e;
+  color: white;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -723,8 +762,9 @@ tr:hover{
 }
 
 .pagination-btn:disabled {
-  background-color: #bdc3c7;
+  background-color: #4a4a4a;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .pagination-info {
@@ -732,14 +772,10 @@ tr:hover{
   font-weight: 600;
 }
 
-/* Responsive */
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .search-filters-bar {
     flex-direction: column;
-  }
-
-  .search-box {
-    min-width: auto;
   }
 
   .view-options {
