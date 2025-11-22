@@ -28,7 +28,7 @@
               <ActionButton
                 label="Buscar Artefato"
                 description="Localizar item no acervo"
-                @click="navigateTo('management/artefactsList')"
+                @click="navigateTo('/management/artefactsList')"
               />
               <ActionButton
                 label="Gestão de Coleções"
