@@ -1,0 +1,21 @@
+header{
+    margin: 40px 60px;
+    display: flex;
+    justify-content: end;
+    
+    .header-list{
+        display: flex;
+        list-style: none;
+        gap: 40px;
+
+        a{
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+        }
+    }
+
+    .active{
+        font-weight: bold;
+    }
+}

@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  padding-left: 60px;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.form-control {
+  width: 30vw;
+  height: 6vh;
+  border-radius: 10px;
+  border: none;
+  background: #2A2A2A;
+  margin: 15px 0;
+  color: white;
+  outline: none;
+  padding: 20px;
+}
+
+.labelInput {
+  position: absolute;
+  top: 35px;
+  left: 20px;
+  pointer-events: none;
+  transition: 0.4s;
+  color: #bfbfbf;
+  font-size: 16px;
+  background-color: #2A2A2A;
+  padding: 0 5px;
+}
+
+.form-control:focus ~ .labelInput,
+.form-control:not(:placeholder-shown) ~ .labelInput {
+  top: 7px;
+  font-size: 14px;
+  color: #bfbfbf;
+}
+
+.inputBox {
+  position: relative;
+}
