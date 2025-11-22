@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ArtefactView from '@/views/collections/ArtefactView.vue'
+import AddArtefact from '@/views/managements/AddArtefact.vue'
 import path from 'node:path'
 
 const router = createRouter({
@@ -27,18 +28,18 @@ const router = createRouter({
       children: [
         { path: "", name: "management", component: "" },
         { path: ":id", name: "managementArtefact", component: ArtefactView },
-        { path: "add", name: "addArtefact", component: "" },
+        { path: "add", name: "addArtefact", component: AddArtefact },
         { path: "categories", name: "categories", component: "" },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
       //meta: { requiresAuth: true }
     },
-    
+
     {
       path: "/about",
       name: "about",
       component: "",
-    }, 
+    },
     {
       path: '/signin',
       name: 'signin',
