@@ -20,25 +20,25 @@ const router = createRouter({
     {
       path: "/artefact/:id/",
       name: "artefact",
-      component: () => import('@/views/collections/ArtefactView.vue'),
+      component: "",
     },
     {
-      path: "/management/",
+      path: "/management",
       component: "",
       children: [
-        { path: "", name: "management", component: "" },
+        { path: "", name: "management", component: () => import('../views/managements/Management.vue') },
         { path: ":id", name: "managementArtefact", component: ArtefactView },
         { path: "add", name: "addArtefact", component: AddArtefact },
         { path: "categories", name: "categories", component: "" },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
-      //meta: { requiresAuth: true }
+      meta: { requiresAuth: true }
     },
 
     {
       path: "/about",
       name: "about",
-      component: "",
+      component: () => import('../views/AboutView.vue'),
     },
     {
       path: '/signin',
