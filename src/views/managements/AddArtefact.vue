@@ -1,9 +1,9 @@
 <script setup>
 import AddObject from '@/components/managements/AddObject.vue';
-import PageLayout from '@/layouts/PageLayout.vue';
+import ManagerLayout from '@/layouts/ManagerLayout.vue';
 </script>
 <template>
-  <PageLayout>
+  <ManagerLayout>
     <AddObject />
-  </PageLayout>
+  </ManagerLayout>
 </template>
