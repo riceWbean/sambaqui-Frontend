@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ArtefactView from '@/views/collections/ArtefactView.vue'
 import AddArtefact from '@/views/managements/AddArtefact.vue'
-import SubType from '@/components/vocabulary/SubType.vue'
 import path from 'node:path'
 
 const router = createRouter({
@@ -31,7 +30,7 @@ const router = createRouter({
         { path: ":id", name: "managementArtefact", component: () => import('../views/managements/ArtefactDetail.vue') },
         { path: "add", name: "addArtefact", component: AddArtefact },
         { path: "categories", name: "categories", component: ""},
-        { path: "sub-types", name: "subTypes", component: SubType },
+        { path: "sub-types", name: "subTypes", component: () => import('../views/managements/SubType.vue') },
         { path: "raw-materials", name: "rawMaterials", component: () => import('../views/managements/RawMaterials.vue') },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
