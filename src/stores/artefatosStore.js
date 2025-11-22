@@ -83,5 +83,16 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     }
   }
 
-  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact }
+  async function updateArtefact(form) {
+    try {
+        console.log(form);
+        const response = await ArtefactsService.updateArtefact(form);
+        toastStore.notify("Artefato atualizado com sucesso", "success");
+    }
+    catch(error) {
+        console.error('Error in PATCH artefact: ', error);
+    }
+  }
+
+  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact, updateArtefact }
 })

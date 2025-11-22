@@ -191,178 +191,147 @@
 
     <!-- MODAL DE EDIÇÃO -->
     <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2>Editar Artefato</h2>
-          <button class="close-btn" @click="showEditModal = false">✕</button>
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h2>Editar Artefato</h2>
+            <button class="close-btn" @click="showEditModal = false">✕</button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="handleSaveEdit">
+              <!-- Basic Information -->
+              <section class="form-section">
+                <h3>Informações Básicas</h3>
+        
+                <div class="form-group">
+                  <label>Nome *</label>
+                  <input
+                    v-model="editForm.name"
+                    type="text"
+                    required
+                    class="form-input"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Outro Nome</label>
+                  <input
+                    v-model="editForm.other_name"
+                    type="text"
+                    class="form-input"
+                  />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Estado de Conservação *</label>
+                    <select v-model.number="editForm.conservation_status" required class="form-input">
+                      <option value="">Selecione o estado</option>
+                      <option :value="1">Excelente</option>
+                      <option :value="2">Bom</option>
+                      <option :value="3">Regular</option>
+                      <option :value="4">Ruim</option>
+                      <option :value="5">Crítico</option>
+                      <option :value="6">Irreversível</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Datação</label>
+                    <input
+                      v-model.number="editForm.dating"
+                      type="number"
+                      placeholder="Anos atrás"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+              </section>
+              <!-- Location Information -->
+              <section class="form-section">
+                <h3>Localização</h3>
+        
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Localização *</label>
+                    <select v-model="editForm.localization" required class="form-input">
+                      <option value="" selected>Selecione...</option>
+                      <option v-for="(localization, localizationIndex) in artefatosStore.categories.localizations" :key="localizationIndex" :value="localization.id">{{ localization.room }}, {{ localization.shelf }}, {{ localization.bookcase }}</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+              <!-- Physical Characteristics -->
+              <section class="form-section">
+                <h3>Características Físicas</h3>
+        
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Comprimento (cm)</label>
+                    <input
+                      v-model.number="editForm.dimension_width"
+                      type="number"
+                      step="0.01"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Largura (cm)</label>
+                    <input
+                      v-model.number="editForm.dimension_length"
+                      type="number"
+                      step="0.01"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Peso (g)</label>
+                    <input
+                      v-model.number="editForm.weigth"
+                      type="number"
+                      step="0.01"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+              </section>
+              <!-- Descriptions -->
+              <section class="form-section">
+                <h3>Descrições</h3>
+        
+                <div class="form-group full-width">
+                  <label>Descrição</label>
+                  <textarea
+                    v-model="editForm.description"
+                    rows="4"
+                    class="form-input"
+                  ></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label>Observações</label>
+                  <textarea
+                    v-model="editForm.observation"
+                    rows="3"
+                    class="form-input"
+                  ></textarea>
+                </div>
+                <div class="form-group full-width">
+                  <label>Referências Bibliográficas</label>
+                  <textarea
+                    v-model="editForm.bibliographic_reference"
+                    rows="3"
+                    class="form-input"
+                  ></textarea>
+                </div>
+              </section>
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button type="button" class="btn-secondary" @click="showEditModal = false">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn-primary" @click="artefatosStore.updateArtefact(editForm)" :disabled="savingEdit">
+                  {{ savingEdit ? 'Salvando...' : 'Salvar Alterações' }}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <div class="modal-body">
-          <form @submit.prevent="handleSaveEdit">
-            <!-- Basic Information -->
-            <section class="form-section">
-              <h3>Informações Básicas</h3>
-              
-              <div class="form-group">
-                <label>Nome *</label>
-                <input 
-                  v-model="editForm.name" 
-                  type="text" 
-                  required
-                  class="form-input"
-                />
-              </div>
-
-              <div class="form-group">
-                <label>Outro Nome</label>
-                <input 
-                  v-model="editForm.other_name" 
-                  type="text"
-                  class="form-input"
-                />
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Estado de Conservação *</label>
-                  <select v-model.number="editForm.conservation_status" required class="form-input">
-                    <option value="">Selecione o estado</option>
-                    <option :value="1">Excelente</option>
-                    <option :value="2">Bom</option>
-                    <option :value="3">Regular</option>
-                    <option :value="4">Ruim</option>
-                    <option :value="5">Crítico</option>
-                    <option :value="6">Irreversível</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Datação</label>
-                  <input 
-                    v-model.number="editForm.dating" 
-                    type="number"
-                    placeholder="Anos atrás"
-                    class="form-input"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Location Information -->
-            <section class="form-section">
-              <h3>Localização</h3>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Sala</label>
-                  <input 
-                    v-model="editForm.localization.room" 
-                    type="text"
-                    class="form-input"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Prateleira</label>
-                  <input 
-                    v-model="editForm.localization.shelf" 
-                    type="text"
-                    class="form-input"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Estante</label>
-                  <input 
-                    v-model="editForm.localization.bookcase" 
-                    type="text"
-                    class="form-input"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Physical Characteristics -->
-            <section class="form-section">
-              <h3>Características Físicas</h3>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Comprimento (cm)</label>
-                  <input 
-                    v-model.number="editForm.dimension_length" 
-                    type="number"
-                    step="0.01"
-                    class="form-input"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Largura (cm)</label>
-                  <input 
-                    v-model.number="editForm.dimension_width" 
-                    type="number"
-                    step="0.01"
-                    class="form-input"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Peso (g)</label>
-                  <input 
-                    v-model.number="editForm.weigth" 
-                    type="number"
-                    step="0.01"
-                    class="form-input"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Descriptions -->
-            <section class="form-section">
-              <h3>Descrições</h3>
-              
-              <div class="form-group full-width">
-                <label>Descrição</label>
-                <textarea 
-                  v-model="editForm.description" 
-                  rows="4"
-                  class="form-input"
-                ></textarea>
-              </div>
-
-              <div class="form-group full-width">
-                <label>Observações</label>
-                <textarea 
-                  v-model="editForm.observation" 
-                  rows="3"
-                  class="form-input"
-                ></textarea>
-              </div>
-
-              <div class="form-group full-width">
-                <label>Referências Bibliográficas</label>
-                <textarea 
-                  v-model="editForm.bibliographic_reference" 
-                  rows="3"
-                  class="form-input"
-                ></textarea>
-              </div>
-            </section>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" @click="showEditModal = false">
-                Cancelar
-              </button>
-              <button type="submit" class="btn-primary" :disabled="savingEdit">
-                {{ savingEdit ? 'Salvando...' : 'Salvar Alterações' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
 
   </ManagerLayout>
@@ -383,12 +352,14 @@ import {
   formatDate,
   getEnumLabel
 } from '@/utils/artefactEnums.js'
+import { useArtefatosStore } from '@/stores'
 import { useArtefactsStore } from '@/stores/useArtefactStore'
 import { ArtefactsService } from '@/services'
 
-const store = useArtefactsStore()
-const route = useRoute()
-const router = useRouter()
+const artefatosStore = useArtefatosStore();
+const store = useArtefactsStore();
+const route = useRoute();
+const router = useRouter();
 
 // State
 const artefact = ref(null)
@@ -398,15 +369,12 @@ const showEditModal = ref(false)
 const savingEdit = ref(false)
 
 const editForm = reactive({
+  id: route.params.id,
   name: '',
   other_name: '',
   conservation_status: '',
   dating: null,
-  localization: {
-    room: '',
-    shelf: '',
-    bookcase: ''
-  },
+  localization: '',
   dimension_length: null,
   dimension_width: null,
   weigth: null,
@@ -526,17 +494,17 @@ async function handleSaveEdit() {
       reserved: artefact.value.reserved
     }
 
-    await ArtefactsService.updateArtefact(artefact.value.id, payload)
+    // await ArtefactsService.updateArtefact(artefact.value.id, payload)
     
     await fetchArtefact()
-    showEditModal.value = false
-    alert('Artefato atualizado com sucesso!')
-  } catch (error) {
-    console.error('Erro ao salvar:', error)
-    alert('Erro ao salvar as alterações: ' + error.message)
-  } finally {
-    savingEdit.value = false
-  }
+      showEditModal.value = false
+      // alert('Artefato atualizado com sucesso!')
+    } catch (error) {
+      console.error('Erro ao salvar:', error)
+      // alert('Erro ao salvar as alterações: ' + error.message)
+    } finally {
+      savingEdit.value = false
+    }
 }
 
 
@@ -555,7 +523,10 @@ const onImageSelected = (data) => {
 }
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
+  if (Object.keys(artefatosStore.categories).length === 0) {
+    await artefatosStore.getCategories()
+  }
   fetchArtefact()
 })
 

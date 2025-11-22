@@ -116,7 +116,7 @@
         </div>
         <div class="items-per-page">
           <label>Itens por página:</label>
-          <select v-model.number="artefatosStores.filters.num_artefacts" class="items-select">
+          <select @change="artefatosStores.filters.num_artefacts = $event.target.value; artefatosStores.getAllArtefacts()" :value="artefatosStores.filters.num_artefacts" class="items-select">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
