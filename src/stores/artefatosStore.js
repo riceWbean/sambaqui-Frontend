@@ -24,31 +24,31 @@ export const useArtefatosStore = defineStore('artefatos', () => {
 
   async function getCategories() {
     try {
-        const response = await ArtefactsService.getCategories();
-        categories.value = response;
+      const response = await ArtefactsService.getCategories();
+      categories.value = response;
     }
-    catch(error) {
-        console.error('Error in GET categories: ', error);
+    catch (error) {
+      console.error('Error in GET categories: ', error);
     }
   }
 
   async function getAllArtefacts() {
     try {
-        const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
-        artefatos.value = response;
+      const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
+      artefatos.value = response;
     }
-    catch(error) {
-        console.error('Error in GET All Artefacts: ', error);
+    catch (error) {
+      console.error('Error in GET All Artefacts: ', error);
     }
   }
 
   async function getFilteredArtefacts() {
     try {
-        const response = await ArtefactsService.getFilteredArtefacts(filters);
-        filteredArtefacts.value = response;
+      const response = await ArtefactsService.getFilteredArtefacts(filters);
+      filteredArtefacts.value = response;
     }
-    catch(error) {
-        console.error('Error in GET filtered artefacts: ', error);
+    catch (error) {
+      console.error('Error in GET filtered artefacts: ', error);
     }
   }
 
@@ -62,24 +62,24 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     const files = raw.files || []
 
     for (const [key, value] of Object.entries(raw)) {
-        if (key === 'files') continue
-        fd.append(key, value ?? '')
+      if (key === 'files') continue
+      fd.append(key, value ?? '')
     }
 
     for (const file of files) {
-        fd.append('files', file)
+      fd.append('files', file)
     }
 
     try {
-        for (const [key, value] of fd) {
-            console.log(key, value);
-        }
-        const response = await ArtefactsService.createArtefact(fd);
-        await getAllArtefacts();
-        toastStore.notify("Artefato adicionado com sucesso!", "success");
+      for (const [key, value] of fd) {
+        console.log(key, value);
+      }
+      const response = await ArtefactsService.createArtefact(fd);
+      await getAllArtefacts();
+      toastStore.notify("Artefato adicionado com sucesso!", "success");
     }
-    catch(error) {
-        console.error('Error in POST Artefact: ', error);
+    catch (error) {
+      console.error('Error in POST Artefact: ', error);
     }
   }
 
