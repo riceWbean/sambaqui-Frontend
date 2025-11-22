@@ -4,7 +4,6 @@
       <h4 class="vocab-title">{{ title }}</h4>
       <p class="vocab-items">{{ items }}</p>
     </div>
-    <div class="vocab-action">→</div>
   </div>
 </template>
 
@@ -31,7 +30,7 @@ export default {
 
 <style scoped>
 .vocab-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #202020  0%, #292929 100%);
   border-radius: 6px;
   padding: 1rem;
   display: flex;
@@ -44,7 +43,6 @@ export default {
 
 .vocab-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .vocab-icon {
@@ -69,13 +67,6 @@ export default {
   opacity: 0.9;
 }
 
-.vocab-action {
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
 
-.vocab-card:hover .vocab-action {
-  opacity: 1;
-}
+
 </style>

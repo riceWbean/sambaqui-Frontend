@@ -43,10 +43,6 @@ export default {
   transition: all 0.3s;
 }
 
-.recent-item-card:hover {
-  border-color: #737373;
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
-}
 
 .item-header {
   display: flex;
@@ -72,15 +68,17 @@ export default {
 }
 
 .item-status.catalogado {
-  background-color: #d5f4e6;
+  border: 1px solid #d5f4e6;
   color: #1e1e1e;
   font-weight: bold;
+  color: #d5f4e6;
 }
 
 .item-status.pendente {
-  background-color: #ffeaa7;
+  border: 1px solid #ffeaa7;
   color: #1e1e1e;
   font-weight: bold;
+  color: #ffeaa7;
 }
 
 .item-meta {
