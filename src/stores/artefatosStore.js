@@ -126,6 +126,104 @@ export const useArtefatosStore = defineStore('artefatos', () => {
                     "artefact": 7
                 }
             ]
+        },
+           {
+            "id": 7,
+            "name": "Crânio",
+            "raw_material": {
+                "id": 1,
+                "name": "Animal"
+            },
+            "sub_type": {
+                "id": 1,
+                "name": "Osso",
+                "raw_material": 1
+            },
+            "images": [
+                {
+                    "public_id_cloudinary": "wfrifshxdvvxk44tu4il",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756788/wfrifshxdvvxk44tu4il.jpg",
+                    "artefact": 7
+                },
+                {
+                    "public_id_cloudinary": "jwpplkjmahfkzdfycsce",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756789/jwpplkjmahfkzdfycsce.jpg",
+                    "artefact": 7
+                }
+            ]
+        },
+           {
+            "id": 7,
+            "name": "Crânio",
+            "raw_material": {
+                "id": 1,
+                "name": "Animal"
+            },
+            "sub_type": {
+                "id": 1,
+                "name": "Osso",
+                "raw_material": 1
+            },
+            "images": [
+                {
+                    "public_id_cloudinary": "wfrifshxdvvxk44tu4il",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756788/wfrifshxdvvxk44tu4il.jpg",
+                    "artefact": 7
+                },
+                {
+                    "public_id_cloudinary": "jwpplkjmahfkzdfycsce",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756789/jwpplkjmahfkzdfycsce.jpg",
+                    "artefact": 7
+                }
+            ]
+        },   {
+            "id": 7,
+            "name": "Crânio",
+            "raw_material": {
+                "id": 1,
+                "name": "Animal"
+            },
+            "sub_type": {
+                "id": 1,
+                "name": "Osso",
+                "raw_material": 1
+            },
+            "images": [
+                {
+                    "public_id_cloudinary": "wfrifshxdvvxk44tu4il",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756788/wfrifshxdvvxk44tu4il.jpg",
+                    "artefact": 7
+                },
+                {
+                    "public_id_cloudinary": "jwpplkjmahfkzdfycsce",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756789/jwpplkjmahfkzdfycsce.jpg",
+                    "artefact": 7
+                }
+            ]
+        },   {
+            "id": 7,
+            "name": "Crânio",
+            "raw_material": {
+                "id": 1,
+                "name": "Animal"
+            },
+            "sub_type": {
+                "id": 1,
+                "name": "Osso",
+                "raw_material": 1
+            },
+            "images": [
+                {
+                    "public_id_cloudinary": "wfrifshxdvvxk44tu4il",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756788/wfrifshxdvvxk44tu4il.jpg",
+                    "artefact": 7
+                },
+                {
+                    "public_id_cloudinary": "jwpplkjmahfkzdfycsce",
+                    "url_photo": "https://res.cloudinary.com/dcaxknnbq/image/upload/v1763756789/jwpplkjmahfkzdfycsce.jpg",
+                    "artefact": 7
+                }
+            ]
         }
     ])
 
