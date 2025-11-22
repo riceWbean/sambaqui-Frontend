@@ -1,7 +1,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted } from "vue";
-import { useArtefatosStore } from "@/stores/artefatosStore";
+import { useArtefatosStore } from "@/stores/artefatoCliente";
 import SlideComponent from "./SlideComponent.vue";
 
 const artefatosStore = useArtefatosStore()

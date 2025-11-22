@@ -78,7 +78,7 @@ import { useRouter } from "vue-router"
 import PageLayout from "@/layouts/PageLayout.vue"
 import SlideComponent from "@/components/acervo/SlideComponent.vue"
 import MapaComponent from "@/components/mapa/MapaComponent.vue"
-import { useArtefatosStore } from "@/stores/artefatosStore"
+import { useArtefatosStore } from "@/stores/artefatoCliente"
 
 const router = useRouter()
 const artefatosStore = useArtefatosStore()
