@@ -1,10 +1,28 @@
 <script setup>
-import { onMounted } from 'vue'
-// import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// const router = useRouter()
+// IMPORT DO COMPONENTE FILHO - ajuste o caminho se necessário
+// Se o seu arquivo filho chama-se PopUpLoc.vue, use PopUpLoc.vue aqui.
+// Se chama PopUp.vue, mude para "@/components/popUpLoc/PopUp.vue"
+import PopUp from '@/components/popUpLoc/PopUpLoc.vue'
+
+// controla a exibição do pop-up
+const showPopup = ref(false)
+
+// evento ao negar
+const handleDeny = () => {
+  showPopup.value = false
+  alert('Localização negada.')
+}
+
+// evento ao permitir
+const handleAllow = (position) => {
+  showPopup.value = false
+  console.log('Localização:', position?.coords)
+  alert('Localização ativada!')
+}
 
 // -------- LISTA COMPLETA DE LOCAIS --------
 const locais = [
@@ -72,20 +90,19 @@ function criarIcone(imagem) {
 
 onMounted(() => {
   // cria o mapa
-  window.map = L.map("map").setView([-26.290, -48.820], 12)
+  // certifique-se que existe <div id="map"></div> no template
+  window.map = L.map('map').setView([-26.290, -48.820], 12)
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", {
-    attribution: "© CARTO | © OpenStreetMap"
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    attribution: '© CARTO | © OpenStreetMap'
   }).addTo(window.map)
 
   // ---------- ADICIONAR TODOS OS LOCAIS ----------
-  
   locais.forEach(local => {
     const marker = L.marker([local.lat, local.lon], {
       icon: criarIcone(local.imagem)
     }).addTo(window.map)
 
-    // POPUP BONITO COM IMAGEM + NOME + DESCRIÇÃO + BOTÃO
     const popupHTML = `
       <div style="
           width: 180px;
@@ -113,38 +130,37 @@ onMounted(() => {
 
       </div>
     `
-
     marker.bindPopup(popupHTML)
-
-    // clique também pode redirecionar (se quiser)
-    // marker.on("click", () => {
-    //   router.push(local.rota)
-    // })
   })
 })
 </script>
+
 <template>
   <div>
     <h1>SAMBAQUIS EM JOINVILLE</h1>
     <p>Encontre no mapa abaixo os pricipais Sambaquis do municipio de Joinville, Santa Catarina!</p>
-  </div>
 
-  <div id="map"></div>
+    <div id="map"></div>
+  </div>
 </template>
+
 <style scoped>
-p{
-    width: 100%;
+p {
+  width: 100%;
 }
-h1{
-        text-align: center;
-        margin: 30px;
-        color: #FFF;
-        font-weight: 400;
-        font-size: 32px;
-    }
+
+h1 {
+  text-align: center;
+  margin: 30px;
+  color: #FFF;
+  font-weight: 400;
+  font-size: 32px;
+}
+
 #map {
   height: 400px;
-  width: 1000px;
-  margin-top: 10px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 10px auto;
 }
-</style> 
+</style>

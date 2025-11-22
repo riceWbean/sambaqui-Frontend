@@ -38,17 +38,17 @@ const emit = defineEmits(['update:modelValue','saved'])
 
 const store = useRawMaterialStore()
 
-// Formulário só tem "name" porque description NÃO existe na modelagem
-const form = ref({ name: '' })
+// agora tem name e description no form
+const form = ref({ name: '', description: '' })
 
 const saving = ref(false)
 const error = ref('')
 
-// Preenche o formulário ao abrir o modal
+// Preenche o formulário ao abrir o modal (inclui description)
 watch(() => props.editing, v => {
   form.value = v
-    ? { name: v.name ?? '' }
-    : { name: '' }
+    ? { name: v.name ?? '', description: v.description ?? '' }
+    : { name: '', description: '' }
 }, { immediate: true })
 
 function close() {
@@ -66,17 +66,22 @@ async function save() {
   error.value = ''
 
   try {
-    const payload = { name: form.value.name.trim() }
+    const payload = { name: form.value.name.trim(), description: form.value.description ?? '' }
 
-    if (props.editing && props.editing.idRawMaterial) {
-      // UPDATE
-      await store.update(props.editing.idRawMaterial, payload)
+    // aceitar tanto `id` quanto `idRawMaterial` como identificador
+    const editingId = props.editing?.id ?? props.editing?.idRawMaterial
+
+    let result = null
+    if (editingId) {
+      // UPDATE (PATCH) via store
+      result = await store.update(editingId, payload)
     } else {
-      // CREATE
-      await store.create(payload)
+      // CREATE (POST) via store
+      result = await store.create(payload)
     }
 
-    emit('saved')
+    // Emitir o item salvo/atualizado para o pai
+    emit('saved', result)
     close()
   } catch (err) {
     console.error(err)

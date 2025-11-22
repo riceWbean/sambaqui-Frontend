@@ -102,10 +102,14 @@ async function loadArtefacts(options) {
 }
 
 const totalPages = computed(() => dashboardStore.dashboard.total_artefacts % artefatosStores.filters.num_artefacts == 0 ? dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts : Math.floor(dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts) + 1);
+const inputField = ref(null);
 
 watch(itemsPerPage, () => { currentPage.value = 1 })
 
 onMounted(async () => {
+  if (inputField.value) {
+    inputField.value.focus();
+  }
   if (Object.entries(dashboardStore.dashboard).length == 0) {
     await dashboardStore.getDashboard();
   }
@@ -129,13 +133,15 @@ onMounted(async () => {
       <!-- Search and Filters Bar -->
       <div class="search-filters-bar">
         <div class="search-box">
-          <input
-            v-model="artefatosStores.filters.search"
-            @keyup.enter="artefatosStores.getFilteredArtefacts()"
-            type="text"
-            placeholder="Buscar por nome, número de acervo..."
-            class="search-input"
-          />
+      <input
+        ref="inputField" 
+        v-model="artefatosStores.filters.search"
+        @keyup.enter="artefatosStores.getFilteredArtefacts()"
+        type="text"
+        placeholder="Buscar por nome, número de acervo..."
+        class="search-input"
+      />
+
         </div>
         <button class="filter-toggle" @click="showFilters = !showFilters">
           Filtros {{ activeFiltersCount > 2 ? `(${activeFiltersCount - 2})` : '' }}

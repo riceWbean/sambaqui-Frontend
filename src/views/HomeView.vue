@@ -96,6 +96,10 @@ const listPoints = ref([
   { id: 1, top: "40px", left: "600px", info: "Texto de informação 1" },
 ])
 
+function receberCoordenadas(coords) {
+  console.log('Coordenadas recebidas:', coords)
+}
+
 function showInfo(id) {
   const point = listPoints.value.find((p) => p.id === id)
   if (point) alert(point.info)
@@ -126,6 +130,26 @@ function showInfo(id) {
   border: 1px solid #d9d9d9;
   border-radius: 50%;
   position: absolute;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.image-interact .point:hover {
+  background-color: #8B8C89;
+  transform: scale(1.2);
+}
+
+.botao-localizacao {
+  margin: 20px 0;
+  padding: 12px 24px;
+  background-color: #5D5E5B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .card {

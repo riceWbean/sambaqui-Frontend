@@ -1,11 +1,26 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import ArtefactsService from '@/services/artefactsServices'
+import { ref, reactive, computed, toRaw } from 'vue'
+import { useDashboardStore, useToastStore } from '@/stores';
+import { ArtefactsService } from '@/services';
 
 export const useArtefatosStore = defineStore('artefatos', () => {
-  const artefatos = ref([])
-  const loading = ref(false)
-  const error = ref(null)
+  const artefatos = ref([]);
+  const filteredArtefacts = ref([]);
+  const categories = ref({});
+  const filters = reactive({
+    collection: '',
+    raw_material: '',
+    sub_type: '',
+    conservation_status: '',
+    location: '',
+    dating_from: '',
+    dating_to: '',
+    search: '',
+    num_artefacts: 10,
+    page: 1
+  });
+  const dashboardStore = useDashboardStore();
+  const toastStore = useToastStore();
 
   const count = computed(() => artefatos.value.length)
 
@@ -29,11 +44,36 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     }
   }
 
-  return {
-    artefatos,
-    loading,
-    error,
-    count,
-    fetchAll         // ← IMPORTANTE: GARANTIR QUE ESTÁ RETORNANDO
+  async function createArtefact(form) {
+    const fd = new FormData()
+
+    const raw = toRaw(form)
+
+    console.log(raw);
+
+    const files = raw.files || []
+
+    for (const [key, value] of Object.entries(raw)) {
+        if (key === 'files') continue
+        fd.append(key, value ?? '')
+    }
+
+    for (const file of files) {
+        fd.append('files', file)
+    }
+
+    try {
+        for (const [key, value] of fd) {
+            console.log(key, value);
+        }
+        const response = await ArtefactsService.createArtefact(fd);
+        await getAllArtefacts();
+        toastStore.notify("Artefato adicionado com sucesso!", "success");
+    }
+    catch(error) {
+        console.error('Error in POST Artefact: ', error);
+    }
   }
+
+  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact }
 })

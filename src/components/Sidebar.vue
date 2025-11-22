@@ -125,6 +125,21 @@
           </li>
         </ul>
       </div>
+      <!-- Auditoria Section -->
+      <div class="nav-section">
+        <p class="nav-section-title">Auditoria</p>
+        <ul class="nav-menu">
+          <li>
+            <router-link
+              to="/management/log-changes"
+              class="nav-link"
+              :class="{ active: isActive('/management/log-changes') }"
+            >
+              <span class="nav-text">Registros de Auditoria</span>
+            </router-link>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <!-- Sidebar Footer -->
