@@ -1,7 +1,9 @@
 <template>
-  <ManagerLayout page-title="Listagem de Artefatos" breadcrumb="Acervo > Listagem de Artefatos">
+  <ManagerLayout
+    page-title="Listagem de Artefatos"
+    breadcrumb="Acervo > Listagem de Artefatos"
+  >
     <div class="Artefacts-list-container">
-      
       <!-- Search and Filters Bar -->
       <div class="search-filters-bar">
         <div class="search-box">
@@ -13,7 +15,7 @@
           />
         </div>
         <button class="filter-toggle" @click="showFilters = !showFilters">
-          Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : '' }}
+          Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : "" }}
         </button>
         <button class="btn-primary" @click="showNewArtefactsModal = true">
           Novo Artefato
@@ -65,17 +67,25 @@
           </div>
         </div>
         <div class="filters-actions">
-          <button class="btn-secondary" @click="clearFilters">Limpar Filtros</button>
+          <button class="btn-secondary" @click="clearFilters">
+            Limpar Filtros
+          </button>
         </div>
       </div>
 
       <!-- View Toggle + Sort + Pagination Options -->
       <div class="view-options">
         <div class="view-toggle">
-          <button :class="['view-btn', { active: viewMode === 'table' }]" @click="viewMode = 'table'">
+          <button
+            :class="['view-btn', { active: viewMode === 'table' }]"
+            @click="viewMode = 'table'"
+          >
             Tabela
           </button>
-          <button :class="['view-btn', { active: viewMode === 'grid' }]" @click="viewMode = 'grid'">
+          <button
+            :class="['view-btn', { active: viewMode === 'grid' }]"
+            @click="viewMode = 'grid'"
+          >
             Grade
           </button>
         </div>
@@ -100,7 +110,10 @@
 
       <!-- Results Info -->
       <div class="results-info">
-        <p>Mostrando <strong>{{ paginatedArtefacts.length }}</strong> de <strong>{{ filteredArtefacts.length }}</strong> artefatos</p>
+        <p>
+          Mostrando <strong>{{ paginatedArtefacts.length }}</strong> de
+          <strong>{{ filteredArtefacts.length }}</strong> artefatos
+        </p>
       </div>
 
       <!-- TABLE VIEW -->
@@ -117,17 +130,29 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="Artefact in paginatedArtefacts" :key="Artefact.id" class="Artefacts-row">
+            <tr
+              v-for="Artefact in paginatedArtefacts"
+              :key="Artefact.id"
+              class="Artefacts-row"
+            >
               <td class="accession-number">{{ Artefact.id }}</td>
               <td class="Artefacts-name">{{ Artefact.name }}</td>
               <td>{{ Artefact.collection?.name }}</td>
               <td>
-                <span class="badge" :class="(Artefact.raw_material?.name || '').toLowerCase()">
+                <span
+                  class="badge"
+                  :class="(Artefact.raw_material?.name || '').toLowerCase()"
+                >
                   {{ Artefact.raw_material?.name }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" :class="stateConverter(Artefact.conservation_status).toLowerCase()">
+                <span
+                  class="status-badge"
+                  :class="
+                    stateConverter(Artefact.conservation_status).toLowerCase()
+                  "
+                >
                   {{ stateConverter(Artefact.conservation_status) }}
                 </span>
               </td>
@@ -139,205 +164,311 @@
 
       <!-- GRID VIEW -->
       <div v-else class="grid-container">
-        <div v-for="Artefact in paginatedArtefacts" :key="Artefact.id" class="grid-card">
+        <div
+          v-for="Artefact in paginatedArtefacts"
+          :key="Artefact.id"
+          class="grid-card"
+        >
           <div class="card-image-wrapper">
             <img
-              v-if="Artefact.images?.length || Artefact.image_url || Artefact.photo"
-              :src="
-          Artefact.images?.[0]?.secure_url ||
-          (Artefact.images?.[0]?.url
-            ? Artefact.images[0].url.replace('/upload/', '/upload/f_auto,q_auto,w_400,h_300,c_fill/')
-            : '') ||
-          (Artefact.image_url
-            ? Artefact.image_url.replace('/upload/', '/upload/f_auto,q_auto,w_400,h_300,c_fill/')
-            : '') ||
-          Artefact.photo
-              "
+              v-if="getImageUrl(Artefact)"
+              :src="getImageUrl(Artefact)"
               :alt="Artefact.name"
               class="card-image"
               loading="lazy"
-              @error="($event.target.src = '/fallback-image.png')"
+              @error="handleImageError"
             />
             <div v-else class="card-image-placeholder">Sem imagem</div>
           </div>
           <div class="card-header">
-        <h4 class="card-title">{{ Artefact.name }}</h4>
-        <span class="accession-badge">{{ Artefact.id }}</span>
+            <h4 class="card-title">{{ Artefact.name }}</h4>
+            <span class="accession-badge">{{ Artefact.id }}</span>
           </div>
           <div class="card-meta">
-        <div class="meta-row">
-          <span class="meta-label">Coleção:</span>
-          <span class="meta-value">{{ Artefact.collection?.name }}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">Matéria-Prima:</span>
-          <span class="meta-value">{{ Artefact.raw_material?.name }}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">Estado:</span>
-          <span class="meta-value">{{ stateConverter(Artefact.conservation_status) }}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">Localização:</span>
-          <span class="meta-value">{{ Artefact.localization?.room }}</span>
-        </div>
+            <div class="meta-row">
+              <span class="meta-label">Coleção:</span>
+              <span class="meta-value">{{ Artefact.collection?.name }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Matéria-Prima:</span>
+              <span class="meta-value">{{ Artefact.raw_material?.name }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Estado:</span>
+              <span class="meta-value">{{
+                stateConverter(Artefact.conservation_status)
+              }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Localização:</span>
+              <span class="meta-value">{{ Artefact.localization?.room }}</span>
+            </div>
           </div>
           <div class="card-actions">
-        <button class="action-btn view" @click="viewArtefact(Artefact)">Ver</button>
-        <button class="action-btn edit" @click="editArtefact(Artefact)">Editar</button>
-        <button class="action-btn delete" @click="deleteArtefact(Artefact)">Deletar</button>
+            <button class="action-btn view" @click="viewArtefact(Artefact)">
+              Ver
+            </button>
+            <button class="action-btn edit" @click="editArtefact(Artefact)">
+              Editar
+            </button>
+            <button class="action-btn delete" @click="deleteArtefact(Artefact)">
+              Deletar
+            </button>
           </div>
         </div>
-      </div>
       </div>
 
       <!-- Pagination -->
       <div class="pagination">
-        <button :disabled="currentPage === 1" @click="currentPage--" class="pagination-btn">
+        <button
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+          class="pagination-btn"
+        >
           Anterior
         </button>
         <div class="pagination-info">
-          Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong>
+          Página <strong>{{ currentPage }}</strong> de
+          <strong>{{ totalPages }}</strong>
         </div>
-        <button :disabled="currentPage === totalPages" @click="currentPage++" class="pagination-btn">
+        <button
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+          class="pagination-btn"
+        >
           Próxima
         </button>
       </div>
-
+    </div>
   </ManagerLayout>
 </template>
 
-
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
-import ManagerLayout from '@/layouts/ManagerLayout.vue'
-import { useArtefactsStore } from '@/stores/useArtefactStore'
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import ManagerLayout from "@/layouts/ManagerLayout.vue";
+import { useArtefactsStore } from "@/stores/useArtefactStore";
 
-const store = useArtefactsStore()
+const store = useArtefactsStore();
 
 // REFS
-const artefactsList = ref([])
-const searchQuery = ref('')
-const showFilters = ref(false)
-const viewMode = ref('table')
-const sortBy = ref('recent')
-const currentPage = ref(1)
-const itemsPerPage = ref(25)
-const showNewArtefactsModal = ref(false)
+const artefactsList = ref([]);
+const searchQuery = ref("");
+const showFilters = ref(false);
+const viewMode = ref("table");
+const sortBy = ref("recent");
+const currentPage = ref(1);
+const itemsPerPage = ref(25);
+const showNewArtefactsModal = ref(false);
+const showEditModal = ref(false);
+const currentEditingArtefact = ref(null);
 
 // FILTERS
 const filters = reactive({
-  collection: '',
-  rawMaterial: '',
-  conservationStatus: '',
-  location: '',
-})
+  collection: "",
+  rawMaterial: "",
+  conservationStatus: "",
+  location: "",
+});
 
 // CONVERTER
 function stateConverter(item) {
-  switch(item) {
-    case 1: return 'Perfeito'
-    case 2: return 'Bom'
-    case 3: return 'Regular'
-    case 4: return 'Ruim'
-    case 5: return 'Crítico'
-    case 6: return 'Irreversível'
-    default: return 'Desconhecido'
+  switch (item) {
+    case 1:
+      return "Perfeito";
+    case 2:
+      return "Bom";
+    case 3:
+      return "Regular";
+    case 4:
+      return "Ruim";
+    case 5:
+      return "Crítico";
+    case 6:
+      return "Irreversível";
+    default:
+      return "Desconhecido";
   }
 }
 
-// COMPUTED - Filtrados
-const filteredArtefacts = computed(() => {
-  let result = artefactsList.value
+// IMAGE FUNCTIONS
+function getImageUrl(artefact) {
+  try {
+    if (artefact.images?.length > 0) {
+      const image = artefact.images[0];
+      if (image.secure_url) {
+        return optimizeImageUrl(image.secure_url);
+      }
+      if (image.url) {
+        return optimizeImageUrl(image.url);
+      }
+    }
 
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter(a =>
-      (a.name || '').toLowerCase().includes(q) ||
-      (a.id || '').toLowerCase().includes(q)
-    )
+    if (artefact.image_url) {
+      return optimizeImageUrl(artefact.image_url);
+    }
+
+    if (artefact.photo) {
+      return optimizeImageUrl(artefact.photo);
+    }
+
+    return null;
+  } catch (e) {
+    console.error("Erro ao obter URL da imagem:", e);
+    return null;
+  }
+}
+
+function optimizeImageUrl(url) {
+  if (!url) return null;
+
+  if (url.includes("cloudinary") || url.includes("/upload/")) {
+    return url.replace("/upload/", "/upload/f_auto,q_auto,w_400,h_300,c_fill/");
   }
 
+  return url;
+}
+
+function handleImageError(event) {
+  event.target.src = "/fallback-image.png";
+  event.target.style.opacity = "0.5";
+}
+
+// COMPUTED - FILTRADOS + ORDENADOS
+const filteredArtefacts = computed(() => {
+  let result = artefactsList.value;
+
+  // BUSCA
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase();
+    result = result.filter(
+      (a) =>
+        (a.name || "").toLowerCase().includes(q) ||
+        (a.id || "").toLowerCase().includes(q)
+    );
+  }
+
+  // FILTROS
   if (filters.collection) {
-    result = result.filter(a => a.collection?.name === filters.collection)
+    result = result.filter((a) => a.collection?.name === filters.collection);
   }
   if (filters.rawMaterial) {
-    result = result.filter(a => a.raw_material?.name === filters.rawMaterial)
+    result = result.filter((a) => a.raw_material?.name === filters.rawMaterial);
   }
   if (filters.conservationStatus) {
-    result = result.filter(a => a.conservation_status == filters.conservationStatus)
+    result = result.filter(
+      (a) => a.conservation_status == filters.conservationStatus
+    );
   }
   if (filters.location) {
-    result = result.filter(a => a.localization?.room === filters.location)
+    result = result.filter((a) => a.localization?.room === filters.location);
   }
 
-  return result
-})
+  // ORDENAÇÃO
+  if (sortBy.value === "recent") {
+    result.sort((a, b) => {
+      const dateA = new Date(a.created_at || 0);
+      const dateB = new Date(b.created_at || 0);
+      return dateB - dateA;
+    });
+  } else if (sortBy.value === "name") {
+    result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  } else if (sortBy.value === "id") {
+    result.sort((a, b) => (a.id || "").localeCompare(b.id || ""));
+  }
 
-// COMPUTED - Paginados
+  return result;
+});
+
+// COMPUTED - PAGINADOS
 const paginatedArtefacts = computed(() => {
   if (!filteredArtefacts.value || filteredArtefacts.value.length === 0) {
-    return []
+    return [];
   }
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredArtefacts.value.slice(start, end)
-})
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredArtefacts.value.slice(start, end);
+});
 
-// COMPUTED - Total de páginas
+// COMPUTED - TOTAL DE PÁGINAS
 const totalPages = computed(() => {
-  return Math.max(1, Math.ceil(filteredArtefacts.value.length / itemsPerPage.value))
-})
+  return Math.max(
+    1,
+    Math.ceil(filteredArtefacts.value.length / itemsPerPage.value)
+  );
+});
 
-// COMPUTED - Contagem de filtros ativos
+// COMPUTED - CONTAGEM DE FILTROS ATIVOS
 const activeFiltersCount = computed(() => {
-  return Object.values(filters).filter(v => v !== '').length
-})
+  return Object.values(filters).filter((v) => v !== "").length;
+});
 
 // METHODS
 function clearFilters() {
-  filters.collection = ''
-  filters.rawMaterial = ''
-  filters.conservationStatus = ''
-  filters.location = ''
-  searchQuery.value = ''
-  currentPage.value = 1
+  filters.collection = "";
+  filters.rawMaterial = "";
+  filters.conservationStatus = "";
+  filters.location = "";
+  searchQuery.value = "";
+  currentPage.value = 1;
 }
 
-function viewArtefact(Artefact) {
-  console.log('Visualizar artefato:', Artefact)
+function viewArtefact(artefact) {
+  console.log("Visualizar artefato:", artefact);
 }
 
-function editArtefact(Artefact) {
-  console.log('Editar artefato:', Artefact)
+function editArtefact(artefact) {
+  currentEditingArtefact.value = artefact;
+  showEditModal.value = true;
 }
 
-function deleteArtefact(Artefact) {
-  if (!confirm(`Tem certeza que deseja deletar "${Artefact.name}"?`)) return
-  artefactsList.value = artefactsList.value.filter(a => a.id !== Artefact.id)
+async function deleteArtefact(artefact) {
+  if (!confirm(`Tem certeza que deseja deletar "${artefact.name}"?`)) return;
+
+  try {
+    await store.remove(artefact.id);
+    artefactsList.value = artefactsList.value.filter(
+      (a) => a.id !== artefact.id
+    );
+    console.log("Artefato deletado com sucesso");
+  } catch (e) {
+    console.error("Erro ao deletar artefato:", e);
+    alert("Erro ao deletar artefato");
+  }
 }
 
 async function loadArtefacts() {
   try {
-    const data = await store.fetchAll()
-    artefactsList.value = Array.isArray(data) ? data : []
+    const data = await store.fetchAll();
+
+    if (!Array.isArray(data)) {
+      console.warn("Dados retornados não são um array");
+      artefactsList.value = [];
+      return;
+    }
+
+    artefactsList.value = data;
+    console.log(`${data.length} artefatos carregados`);
   } catch (e) {
-    console.error('Erro ao carregar artefatos:', e)
+    console.error("Erro ao carregar artefatos:", e);
+    artefactsList.value = [];
+    alert("Erro ao carregar artefatos");
   }
 }
 
 // LIFECYCLE
 onMounted(() => {
-  loadArtefacts()
-})
+  loadArtefacts();
+});
 
 // WATCHERS
+watch([searchQuery, filters], () => {
+  currentPage.value = 1;
+});
+
 watch(itemsPerPage, () => {
-  currentPage.value = 1
-})
+  currentPage.value = 1;
+});
 </script>
-
-
 
 <style scoped>
 .Artefacts-list-container {
@@ -637,6 +768,29 @@ watch(itemsPerPage, () => {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   border-color: #737373;
+}
+
+.card-image-wrapper {
+  width: 100%;
+  height: 200px;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #262626;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-image-placeholder {
+  color: #7f8c8d;
+  font-size: 0.9rem;
 }
 
 .card-header {
