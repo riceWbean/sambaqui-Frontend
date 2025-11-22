@@ -24,31 +24,31 @@ export const useArtefatosStore = defineStore('artefatos', () => {
 
   async function getCategories() {
     try {
-      const response = await ArtefactsService.getCategories();
-      categories.value = response;
+        const response = await ArtefactsService.getCategories();
+        categories.value = response;
     }
-    catch (error) {
-      console.error('Error in GET categories: ', error);
+    catch(error) {
+        console.error('Error in GET categories: ', error);
     }
   }
 
   async function getAllArtefacts() {
     try {
-      const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
-      artefatos.value = response;
+        const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
+        artefatos.value = response;
     }
-    catch (error) {
-      console.error('Error in GET All Artefacts: ', error);
+    catch(error) {
+        console.error('Error in GET All Artefacts: ', error);
     }
   }
 
   async function getFilteredArtefacts() {
     try {
-      const response = await ArtefactsService.getFilteredArtefacts(filters);
-      filteredArtefacts.value = response;
+        const response = await ArtefactsService.getFilteredArtefacts(filters);
+        filteredArtefacts.value = response;
     }
-    catch (error) {
-      console.error('Error in GET filtered artefacts: ', error);
+    catch(error) {
+        console.error('Error in GET filtered artefacts: ', error);
     }
   }
 
@@ -83,5 +83,16 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     }
   }
 
-  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact }
+  async function updateArtefact(form) {
+    try {
+        console.log(form);
+        const response = await ArtefactsService.updateArtefact(form);
+        toastStore.notify("Artefato atualizado com sucesso", "success");
+    }
+    catch(error) {
+        console.error('Error in PATCH artefact: ', error);
+    }
+  }
+
+  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact, updateArtefact }
 })

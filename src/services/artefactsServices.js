@@ -43,15 +43,6 @@ class ArtefactsService {
         return response.data;
     }
 
-    async updateArtefact(id, ArtefactsData) {
-        try {
-            await api.put(`/artefacts/${id}`, ArtefactsData);
-            console.log('artefato atualizado com sucesso');
-        } catch (error) {
-            throw new Error('Falha ao atualizar artefato: ' + error.message);
-        }
-    }
-
     async deleteArtefact(id) {
         try {
             await api.delete(`/artefacts/${id}/`);
@@ -61,10 +52,15 @@ class ArtefactsService {
         }
     }
     async getFilteredArtefacts(params) {
-    const query = new URLSearchParams(params).toString()
-    const { data } = await api.get(`/artefacts?${query}`)
-    return data
-}
+        const query = new URLSearchParams(params).toString()
+        const { data } = await api.get(`/artefacts?${query}`)
+        return data
+    }
+    async updateArtefact(form) {
+        console.log(form.id);
+        const response = await api.patch(`/artefacts/${form.id}/`);
+        return response.data
+    }
 
 }
 
