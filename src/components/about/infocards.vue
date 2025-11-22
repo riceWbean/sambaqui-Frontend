@@ -10,7 +10,7 @@ const cards = ref([
     },
     {
         title: 'Email',
-        content: 'oorunplacassolare@gmail.com',
+        content: 'museusambaqui@gmail.com',
         icon: 'fa-solid fa-envelope' 
     },
     {
