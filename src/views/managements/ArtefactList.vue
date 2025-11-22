@@ -1,25 +1,22 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
-import ArtefactCard from '@/components/ArtefactCard.vue'
-import { useArtefactsStore } from '@/stores/useArtefactStore'
 import { useArtefatosStore, useDashboardStore } from '@/stores'
 import { getSubTypes } from '@/utils/artefacts'
 
-const Artefacts = ref([])
+const router = useRouter()
 
-const store = useArtefactsStore()
-const artefatosStores = useArtefatosStore();
-const dashboardStore = useDashboardStore();
+const artefatosStores = useArtefatosStore()
+const dashboardStore = useDashboardStore()
 
 const searchQuery = ref('')
 const showFilters = ref(false)
 const viewMode = ref('table')
 const sortBy = ref('recent')
-const currentPage = ref(1)
-const itemsPerPage = ref(25)
 const showNewArtefactsModal = ref(false)
-const showComponent = ref(false);
+const showComponent = ref(false)
+const inputField = ref(null)
 
 function stateConverter(item) {
   switch(item) {
@@ -35,94 +32,100 @@ function stateConverter(item) {
       return 'Crítico'
     case 6:
       return 'Irreversível'
+    default:
+      return 'Desconhecido'
   }
 }
 
-// const filteredArtefacts = computed(() => {
-//   let result = Artefacts.value
-
-//   if (searchQuery.value) {
-//     const q = searchQuery.value.toLowerCase()
-//     result = result.filter(a =>
-//       (a.name || '').toLowerCase().includes(q) ||
-//       (a.accessionNumber || '').toLowerCase().includes(q) ||
-//       (a.description || '').toLowerCase().includes(q)
-//     )
-//   }
-
-//   if (filters.collection) result = result.filter(a => a.collection === filters.collection)
-//   if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
-//   if (filters.subType) result = result.filter(a => a.subType === filters.subType)
-//   if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
-//   if (filters.location) result = result.filter(a => a.location === filters.location)
-
-//   return result
-// })
-
-const paginatedArtefacts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredArtefacts.value.slice(start, end)
+const activeFiltersCount = computed(() => {
+  const count = Object.values(artefatosStores.filters)
+    .filter(v => v !== '' && v !== 10 && v !== 1)
+    .length
+  return count
 })
 
-const activeFiltersCount = computed(() => Object.values(artefatosStores.filters).filter(v => v !== '').length)
-
-function applyFilters() {
-  currentPage.value = 1
-  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
+function clearFilters() {
+  artefatosStores.filters.collection = ''
+  artefatosStores.filters.raw_material = ''
+  artefatosStores.filters.sub_type = ''
+  artefatosStores.filters.conservation_status = ''
+  artefatosStores.filters.location = ''
+  artefatosStores.filters.dating_from = ''
+  artefatosStores.filters.dating_to = ''
+  artefatosStores.filters.search = ''
+  artefatosStores.filters.page = 1
+  artefatosStores.filteredArtefacts = []
+  artefatosStores.getAllArtefacts()
 }
 
-function viewArtefacts(Artefacts) {
-  console.log('Visualizar artefato:', Artefacts)
+function viewArtefacts(artefact) {
+  router.push({ name: 'managementArtefact', params: { id: artefact.id } })
 }
 
-function editArtefact(Artefacts) {
-  console.log('Editar artefato:', Artefacts)
+
+function editArtefact(artefact) {
+  router.push({ name: 'managementArtefact', params: { id: artefact.id } })
 }
 
-async function deleteArtefact(Artefacts) {
-  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
+async function deleteArtefact(artefact) {
+  if (!confirm(`Tem certeza que deseja deletar "${artefact.name}"?`)) return
   try {
-    await store.remove(Artefacts.id)
-    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
+    await artefatosStores.deleteArtefact(artefact.id)
+    await artefatosStores.getAllArtefacts()
   } catch (e) {
     console.error('Erro ao deletar artefato:', e)
   }
 }
 
-async function loadArtefacts(options) {
-  try {
-  const data = await store.fetchAll(options)
-    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
-    console.log('[ArtefactList] normalized list:', list)
-    Artefacts.value = Array.isArray(list) ? list : []
-  } catch (e) {
-    console.error('Erro ao carregar artefatos:', e)
+const totalPages = computed(() => {
+  const total = dashboardStore.dashboard.total_artefacts || 0
+  const perPage = artefatosStores.filters.num_artefacts
+  return total % perPage === 0 
+    ? Math.floor(total / perPage) 
+    : Math.floor(total / perPage) + 1
+})
+
+function previousPage() {
+  if (artefatosStores.filters.page > 1) {
+    artefatosStores.filters.page--
+    artefatosStores.getAllArtefacts()
   }
 }
 
-const totalPages = computed(() => dashboardStore.dashboard.total_artefacts % artefatosStores.filters.num_artefacts == 0 ? dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts : Math.floor(dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts) + 1);
-const inputField = ref(null);
+function nextPage() {
+  if (artefatosStores.filters.page < totalPages.value) {
+    artefatosStores.filters.page++
+    artefatosStores.getAllArtefacts()
+  }
+}
 
-watch(itemsPerPage, () => { currentPage.value = 1 })
+watch(() => artefatosStores.filters.num_artefacts, () => {
+  artefatosStores.filters.page = 1
+  artefatosStores.getAllArtefacts()
+})
 
 onMounted(async () => {
   if (inputField.value) {
-    inputField.value.focus();
+    inputField.value.focus()
   }
-  if (Object.entries(dashboardStore.dashboard).length == 0) {
-    await dashboardStore.getDashboard();
+  
+  if (Object.keys(dashboardStore.dashboard).length === 0) {
+    await dashboardStore.getDashboard()
   }
-  if (Object.entries(artefatosStores.categories).length == 0) {
-    await artefatosStores.getCategories();
+  
+  if (Object.keys(artefatosStores.categories).length === 0) {
+    await artefatosStores.getCategories()
   }
-  if (artefatosStores.artefatos.length == 0) {
-    await artefatosStores.getAllArtefacts(); 
+  
+  if (artefatosStores.artefatos.length === 0) {
+    await artefatosStores.getAllArtefacts()
   }
-  showComponent.value = true;
+  
+  showComponent.value = true
 })
-
 </script>
+
+
 
 <template>
   <ManagerLayout
@@ -130,55 +133,73 @@ onMounted(async () => {
     breadcrumb="Acervo > Listagem de Artefatos"
   >
     <div class="Artefacts-list-container">
-      <!-- Search and Filters Bar -->
       <div class="search-filters-bar">
         <div class="search-box">
-      <input
-        ref="inputField" 
-        v-model="artefatosStores.filters.search"
-        @keyup.enter="artefatosStores.getFilteredArtefacts()"
-        type="text"
-        placeholder="Buscar por nome, número de acervo..."
-        class="search-input"
-      />
-
+          <input
+            ref="inputField" 
+            v-model="artefatosStores.filters.search"
+            @keyup.enter="artefatosStores.getFilteredArtefacts()"
+            type="text"
+            placeholder="Buscar por nome, número de acervo..."
+            class="search-input"
+          />
         </div>
         <button class="filter-toggle" @click="showFilters = !showFilters">
-          Filtros {{ activeFiltersCount > 2 ? `(${activeFiltersCount - 2})` : '' }}
+          Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : '' }}
         </button>
         <button class="btn-primary" @click="showNewArtefactsModal = true">
           Novo Artefato
         </button>
       </div>
 
-      <!-- Filters Panel -->
       <div v-if="showFilters" class="filters-panel">
         <div class="filters-grid">
           <div class="filter-group">
             <label>Coleção</label>
             <select v-model="artefatosStores.filters.collection" class="filter-select">
               <option value="">Todas</option>
-              <option v-for="(collection, collectionIndex) in artefatosStores.categories.collections" :key="collectionIndex" :value="collection.id">{{ collection.name }}</option>
+              <option 
+                v-for="collection in artefatosStores.categories.collections" 
+                :key="collection.id" 
+                :value="collection.id"
+              >
+                {{ collection.name }}
+              </option>
             </select>
           </div>
+          
           <div class="filter-group">
             <label>Matéria-Prima</label>
             <select v-model="artefatosStores.filters.raw_material" class="filter-select">
               <option value="">Todas</option>
-              <option v-for="(rawMaterials, rawMaterialsIndex) in artefatosStores.categories.raw_materials" :key="rawMaterialsIndex" :value="rawMaterials.id">{{ rawMaterials.name }}</option>
+              <option 
+                v-for="rawMaterial in artefatosStores.categories.raw_materials" 
+                :key="rawMaterial.id" 
+                :value="rawMaterial.id"
+              >
+                {{ rawMaterial.name }}
+              </option>
             </select>
           </div>
 
-          <!-- Sub-Type Filter -->
           <div class="filter-group">
             <label>Sub-Tipo</label>
-            <select v-model="artefatosStores.filters.sub_type" :disabled="artefatosStores.filters.raw_material == ''" class="filter-select">
+            <select 
+              v-model="artefatosStores.filters.sub_type" 
+              :disabled="artefatosStores.filters.raw_material === ''" 
+              class="filter-select"
+            >
               <option value="">Todos</option>
-              <option v-for="(subType, subTypeIndex) in getSubTypes(artefatosStores.categories.sub_type, artefatosStores.filters.raw_material)" :key="subTypeIndex" :value="subType.id">{{ subType.name }}</option>
+              <option 
+                v-for="subType in getSubTypes(artefatosStores.categories.sub_type, artefatosStores.filters.raw_material)" 
+                :key="subType.id" 
+                :value="subType.id"
+              >
+                {{ subType.name }}
+              </option>
             </select>
           </div>
 
-          <!-- Conservation Status Filter -->
           <div class="filter-group">
             <label>Estado de Conservação</label>
             <select v-model="artefatosStores.filters.conservation_status" class="filter-select">
@@ -192,7 +213,6 @@ onMounted(async () => {
             </select>
           </div>
 
-          <!-- Dating Filter -->
           <div class="filter-group">
             <label>Período de Datação</label>
             <div class="dating-inputs">
@@ -211,13 +231,13 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+        
         <div class="filters-actions">
-          <button class="btn-secondary" @click="artefatosStores.filteredArtefacts = []">Limpar Filtros</button>
+          <button class="btn-secondary" @click="clearFilters">Limpar Filtros</button>
           <button class="btn-primary" @click="artefatosStores.getFilteredArtefacts()">Aplicar Filtros</button>
         </div>
       </div>
 
-      <!-- View Toggle + Sort + Pagination Options -->
       <div class="view-options">
         <div class="view-toggle">
           <button
@@ -252,13 +272,17 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Results Info -->
       <div class="results-info" v-if="showComponent">
-        <p v-if="artefatosStores.filteredArtefacts.length == 0">Mostrando <strong>{{ artefatosStores.artefatos.results.length }}</strong> de <strong>{{ dashboardStore.dashboard.total_artefacts }}</strong> artefatos</p>
-        <p v-else>Mostrando <strong>{{ artefatosStores.filteredArtefacts.length }}</strong> de <strong>{{ artefatosStores.artefatos.length }}</strong> artefatos</p>
+        <p v-if="artefatosStores.filteredArtefacts.length === 0">
+          Mostrando <strong>{{ artefatosStores.artefatos.results?.length || 0 }}</strong> de 
+          <strong>{{ dashboardStore.dashboard.total_artefacts || 0 }}</strong> artefatos
+        </p>
+        <p v-else>
+          Mostrando <strong>{{ artefatosStores.filteredArtefacts.results?.length || 0 }}</strong> de 
+          <strong>{{ artefatosStores.artefatos.length }}</strong> artefatos
+        </p>
       </div>
 
-      <!-- TABLE VIEW -->
       <div v-if="viewMode === 'table'" class="table-container">
         <table class="Artefactss-table">
           <thead>
@@ -271,106 +295,101 @@ onMounted(async () => {
               <th>Localização</th>
             </tr>
           </thead>
-          <tbody v-if="artefatosStores.filteredArtefacts.length == 0">
-            <tr v-for="(artefact, artefactId) in artefatosStores.artefatos.results" :key="artefactId" class="Artefacts-row">
+          <tbody v-if="artefatosStores.filteredArtefacts.length === 0">
+            <tr 
+              v-for="artefact in artefatosStores.artefatos.results" 
+              :key="artefact.id" 
+              class="Artefacts-row"
+              @click="viewArtefacts(artefact)"
+            >
               <td class="accession-number">{{ artefact.id }}</td>
               <td class="Artefacts-name">{{ artefact.name }}</td>
-              <td>{{ artefact.collection.name }}</td>
+              <td>{{ artefact.collection?.name }}</td>
               <td>
-                <span class="badge" :class="(artefact.raw_material || '').toString().toLowerCase()">
-                  {{ artefact.raw_material.name }}
+                <span class="badge" :class="(artefact.raw_material?.name || '').toLowerCase()">
+                  {{ artefact.raw_material?.name }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" :class="(artefact.conservationStatus || '').toString().toLowerCase()">
+                <span class="status-badge" :class="stateConverter(artefact.conservation_status).toLowerCase()">
                   {{ stateConverter(artefact.conservation_status) }}
                 </span>
               </td>
-              <td>{{ artefact.localization.room }}</td>
+              <td>{{ artefact.localization?.room }}</td>
             </tr>
           </tbody>
           <tbody v-else>
-            <tr v-for="(artefact, artefactId) in artefatosStores.filteredArtefacts.results" :key="artefactId" class="Artefacts-row">
+            <tr 
+              v-for="artefact in artefatosStores.filteredArtefacts.results" 
+              :key="artefact.id" 
+              class="Artefacts-row"
+              @click="viewArtefacts(artefact)"
+            >
               <td class="accession-number">{{ artefact.id }}</td>
               <td class="Artefacts-name">{{ artefact.name }}</td>
-              <td>{{ artefact.collection.name }}</td>
+              <td>{{ artefact.collection?.name }}</td>
               <td>
-                <span class="badge" :class="(artefact.raw_material || '').toString().toLowerCase()">
-                  {{ artefact.raw_material.name }}
+                <span class="badge" :class="(artefact.raw_material?.name || '').toLowerCase()">
+                  {{ artefact.raw_material?.name }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" :class="(artefact.conservationStatus || '').toString().toLowerCase()">
+                <span class="status-badge" :class="stateConverter(artefact.conservation_status).toLowerCase()">
                   {{ stateConverter(artefact.conservation_status) }}
                 </span>
               </td>
-              <td>{{ artefact.localization.room }}</td>
+              <td>{{ artefact.localization?.room }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- GRID VIEW -->
       <div v-else class="grid-container">
-        <div
-          v-for="Artefact in paginatedArtefacts"
-          :key="Artefact.id"
-          class="grid-card"
-        >
+        <div v-for="artefact in artefatosStores.artefatos.results" :key="artefact.id" class="grid-card" @click="viewArtefacts(artefact)">
           <div class="card-image-wrapper">
             <img
-              v-if="getImageUrl(Artefact)"
-              :src="getImageUrl(Artefact)"
-              :alt="Artefact.name"
+              v-if="artefact.images?.length > 0"
+              :src="artefact.images[0].secure_url || artefact.images[0].url"
+              :alt="artefact.name"
               class="card-image"
               loading="lazy"
-              @error="handleImageError"
             />
             <div v-else class="card-image-placeholder">Sem imagem</div>
           </div>
           <div class="card-header">
-            <h4 class="card-title">{{ Artefact.name }}</h4>
-            <span class="accession-badge">{{ Artefact.id }}</span>
+            <h4 class="card-title">{{ artefact.name }}</h4>
+            <span class="accession-badge">{{ artefact.id }}</span>
           </div>
           <div class="card-meta">
             <div class="meta-row">
               <span class="meta-label">Coleção:</span>
-              <span class="meta-value">{{ Artefact.collection?.name }}</span>
+              <span class="meta-value">{{ artefact.collection?.name }}</span>
             </div>
             <div class="meta-row">
               <span class="meta-label">Matéria-Prima:</span>
-              <span class="meta-value">{{ Artefact.raw_material?.name }}</span>
+              <span class="meta-value">{{ artefact.raw_material?.name }}</span>
             </div>
             <div class="meta-row">
               <span class="meta-label">Estado:</span>
-              <span class="meta-value">{{
-                stateConverter(Artefact.conservation_status)
-              }}</span>
+              <span class="meta-value">{{ stateConverter(artefact.conservation_status) }}</span>
             </div>
             <div class="meta-row">
               <span class="meta-label">Localização:</span>
-              <span class="meta-value">{{ Artefact.localization?.room }}</span>
+              <span class="meta-value">{{ artefact.localization?.room }}</span>
             </div>
           </div>
           <div class="card-actions">
-            <button class="action-btn view" @click="viewArtefact(Artefact)">
-              Ver
-            </button>
-            <button class="action-btn edit" @click="editArtefact(Artefact)">
-              Editar
-            </button>
-            <button class="action-btn delete" @click="deleteArtefact(Artefact)">
-              Deletar
-            </button>
+            <button class="action-btn view" @click.stop="viewArtefacts(artefact)">Ver</button>
+            <button class="action-btn edit" @click.stop="editArtefact(artefact)">Editar</button>
+            <button class="action-btn delete" @click.stop="deleteArtefact(artefact)">Deletar</button>
           </div>
         </div>
       </div>
 
-      <!-- Pagination -->
-      <div class="pagination">
+      <div v-if="totalPages > 1" class="pagination">
         <button
           :disabled="artefatosStores.filters.page === 1"
-          @click="artefatosStores.filters.page--; artefatosStores.getAllArtefacts()"
+          @click="previousPage"
           class="pagination-btn"
         >
           Anterior
@@ -380,7 +399,7 @@ onMounted(async () => {
         </div>
         <button
           :disabled="artefatosStores.filters.page === totalPages"
-          @click="artefatosStores.filters.page++; artefatosStores.getAllArtefacts()"
+          @click="nextPage"
           class="pagination-btn"
         >
           Próxima
@@ -389,6 +408,7 @@ onMounted(async () => {
     </div>
   </ManagerLayout>
 </template>
+
 
 <style scoped>
 .Artefacts-list-container {

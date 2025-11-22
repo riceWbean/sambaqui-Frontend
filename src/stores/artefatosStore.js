@@ -83,5 +83,15 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     }
   }
 
-  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact }
+  async function deleteArtefact(id) {
+  try {
+    await ArtefactsService.deleteArtefact(id)
+    toastStore.notify("Artefato deletado com sucesso!", "success")
+  } catch (error) {
+    console.error('Error in DELETE Artefact: ', error)
+    toastStore.notify("Erro ao deletar artefato", "error")
+  }
+}
+
+  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact, deleteArtefact }
 })
