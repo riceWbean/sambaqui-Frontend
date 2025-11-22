@@ -1,0 +1,36 @@
+.infoCards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+
+    .card{
+        display: flex;
+        flex-direction: row;
+        width: 8vw;
+        flex: 1 1 48%; /* Cada card ocupa 48% da largura, criando duas colunas */
+        gap: 10px;
+
+        h3{
+            font-size: 16px;
+        }
+        p{
+            font-size: 14px;
+        }
+
+        .icon {
+    font-size: 1.5rem; 
+    color: #FFFFFF;  
+    margin-bottom: 10px; 
+    background-color: #846247;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    }
+    }
+}
