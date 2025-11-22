@@ -90,6 +90,13 @@ router.beforeEach(async (to, from, next) => {
     }
     next('/signin');
   }
+  if (to.path == "/signin") {
+    if (isAuthenticated) {
+      next('/management');
+      return;
+    }
+    next();
+  }
   next();
 });
 
