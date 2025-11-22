@@ -1,15 +1,144 @@
+<script setup>
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import ManagerLayout from '@/layouts/ManagerLayout.vue'
+import ArtefactCard from '@/components/ArtefactCard.vue'
+import { useArtefactsStore } from '@/stores/useArtefactStore'
+import { useArtefatosStore, useDashboardStore } from '@/stores'
+import { getSubTypes } from '@/utils/artefacts'
+
+const Artefacts = ref([])
+
+const store = useArtefactsStore()
+const artefatosStores = useArtefatosStore();
+const dashboardStore = useDashboardStore();
+
+const searchQuery = ref('')
+const showFilters = ref(false)
+const viewMode = ref('table')
+const sortBy = ref('recent')
+const currentPage = ref(1)
+const itemsPerPage = ref(25)
+const showNewArtefactsModal = ref(false)
+const showComponent = ref(false);
+
+function stateConverter(item) {
+  switch(item) {
+    case 1:
+      return 'Perfeito'
+    case 2:
+      return 'Bom'
+    case 3:
+      return 'Regular'
+    case 4:
+      return 'Ruim'
+    case 5:
+      return 'Crítico'
+    case 6:
+      return 'Irreversível'
+  }
+}
+
+// const filteredArtefacts = computed(() => {
+//   let result = Artefacts.value
+
+//   if (searchQuery.value) {
+//     const q = searchQuery.value.toLowerCase()
+//     result = result.filter(a =>
+//       (a.name || '').toLowerCase().includes(q) ||
+//       (a.accessionNumber || '').toLowerCase().includes(q) ||
+//       (a.description || '').toLowerCase().includes(q)
+//     )
+//   }
+
+//   if (filters.collection) result = result.filter(a => a.collection === filters.collection)
+//   if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
+//   if (filters.subType) result = result.filter(a => a.subType === filters.subType)
+//   if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
+//   if (filters.location) result = result.filter(a => a.location === filters.location)
+
+//   return result
+// })
+
+const paginatedArtefacts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredArtefacts.value.slice(start, end)
+})
+
+const activeFiltersCount = computed(() => Object.values(artefatosStores.filters).filter(v => v !== '').length)
+
+function applyFilters() {
+  currentPage.value = 1
+  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
+}
+
+function viewArtefacts(Artefacts) {
+  console.log('Visualizar artefato:', Artefacts)
+}
+
+function editArtefact(Artefacts) {
+  console.log('Editar artefato:', Artefacts)
+}
+
+async function deleteArtefact(Artefacts) {
+  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
+  try {
+    await store.remove(Artefacts.id)
+    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
+  } catch (e) {
+    console.error('Erro ao deletar artefato:', e)
+  }
+}
+
+async function loadArtefacts(options) {
+  try {
+  const data = await store.fetchAll(options)
+    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
+    console.log('[ArtefactList] normalized list:', list)
+    Artefacts.value = Array.isArray(list) ? list : []
+  } catch (e) {
+    console.error('Erro ao carregar artefatos:', e)
+  }
+}
+
+const totalPages = computed(() => dashboardStore.dashboard.total_artefacts % artefatosStores.filters.num_artefacts == 0 ? dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts : Math.floor(dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts) + 1);
+const inputField = ref(null);
+
+watch(itemsPerPage, () => { currentPage.value = 1 })
+
+onMounted(async () => {
+    if (inputField.value) {
+    inputField.value.focus();
+  }
+  if (Object.entries(dashboardStore.dashboard).length == 0) {
+    await dashboardStore.getDashboard();
+  }
+  if (Object.entries(artefatosStores.categories).length == 0) {
+    await artefatosStores.getCategories();
+  }
+  if (artefatosStores.artefatos.length == 0) {
+    await artefatosStores.getAllArtefacts(); 
+  }
+  showComponent.value = true;
+})
+
+</script>
+
 <template>
   <ManagerLayout page-title="Listagem de Artefatos" breadcrumb="Acervo > Listagem de Artefatos">
     <div class="artifact-list-container">
       <!-- Search and Filters Bar -->
       <div class="search-filters-bar">
         <div class="search-box">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Buscar por nome, número de acervo..."
-            class="search-input"
-          />
+        <input
+          ref="inputField" 
+          v-model="artefatosStores.filters.search"
+          @keyup.enter="artefatosStores.getFilteredArtefacts()"
+          type="text"
+          placeholder="Buscar por nome, número de acervo..."
+          class="search-input"
+        />
+
         </div>
 
         <button class="filter-toggle" @click="showFilters = !showFilters">
