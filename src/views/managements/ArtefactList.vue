@@ -1,3 +1,125 @@
+<script setup>
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import ManagerLayout from '@/layouts/ManagerLayout.vue'
+import ArtefactCard from '@/components/ArtefactCard.vue'
+import { useArtefactsStore } from '@/stores/useArtefactStore'
+import { useArtefatosStore, useDashboardStore } from '@/stores'
+import { getSubTypes } from '@/utils/artefacts'
+
+const Artefacts = ref([])
+
+const store = useArtefactsStore()
+const artefatosStores = useArtefatosStore();
+const dashboardStore = useDashboardStore();
+
+const searchQuery = ref('')
+const showFilters = ref(false)
+const viewMode = ref('table')
+const sortBy = ref('recent')
+const currentPage = ref(1)
+const itemsPerPage = ref(25)
+const showNewArtefactsModal = ref(false)
+const showComponent = ref(false);
+
+function stateConverter(item) {
+  switch(item) {
+    case 1:
+      return 'Perfeito'
+    case 2:
+      return 'Bom'
+    case 3:
+      return 'Regular'
+    case 4:
+      return 'Ruim'
+    case 5:
+      return 'Crítico'
+    case 6:
+      return 'Irreversível'
+  }
+}
+
+// const filteredArtefacts = computed(() => {
+//   let result = Artefacts.value
+
+//   if (searchQuery.value) {
+//     const q = searchQuery.value.toLowerCase()
+//     result = result.filter(a =>
+//       (a.name || '').toLowerCase().includes(q) ||
+//       (a.accessionNumber || '').toLowerCase().includes(q) ||
+//       (a.description || '').toLowerCase().includes(q)
+//     )
+//   }
+
+//   if (filters.collection) result = result.filter(a => a.collection === filters.collection)
+//   if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
+//   if (filters.subType) result = result.filter(a => a.subType === filters.subType)
+//   if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
+//   if (filters.location) result = result.filter(a => a.location === filters.location)
+
+//   return result
+// })
+
+const paginatedArtefacts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredArtefacts.value.slice(start, end)
+})
+
+const activeFiltersCount = computed(() => Object.values(artefatosStores.filters).filter(v => v !== '').length)
+
+function applyFilters() {
+  currentPage.value = 1
+  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
+}
+
+function viewArtefacts(Artefacts) {
+  console.log('Visualizar artefato:', Artefacts)
+}
+
+function editArtefact(Artefacts) {
+  console.log('Editar artefato:', Artefacts)
+}
+
+async function deleteArtefact(Artefacts) {
+  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
+  try {
+    await store.remove(Artefacts.id)
+    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
+  } catch (e) {
+    console.error('Erro ao deletar artefato:', e)
+  }
+}
+
+async function loadArtefacts(options) {
+  try {
+  const data = await store.fetchAll(options)
+    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
+    console.log('[ArtefactList] normalized list:', list)
+    Artefacts.value = Array.isArray(list) ? list : []
+  } catch (e) {
+    console.error('Erro ao carregar artefatos:', e)
+  }
+}
+
+const totalPages = computed(() => dashboardStore.dashboard.total_artefacts % artefatosStores.filters.num_artefacts == 0 ? dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts : Math.floor(dashboardStore.dashboard.total_artefacts / artefatosStores.filters.num_artefacts) + 1);
+
+watch(itemsPerPage, () => { currentPage.value = 1 })
+
+onMounted(async () => {
+  if (Object.entries(dashboardStore.dashboard).length == 0) {
+    await dashboardStore.getDashboard();
+  }
+  if (Object.entries(artefatosStores.categories).length == 0) {
+    await artefatosStores.getCategories();
+  }
+  if (artefatosStores.artefatos.length == 0) {
+    await artefatosStores.getAllArtefacts(); 
+  }
+  showComponent.value = true;
+})
+
+</script>
+
 <template>
   <ManagerLayout
     page-title="Listagem de Artefatos"
@@ -8,14 +130,15 @@
       <div class="search-filters-bar">
         <div class="search-box">
           <input
-            v-model="searchQuery"
+            v-model="artefatosStores.filters.search"
+            @keyup.enter="artefatosStores.getFilteredArtefacts()"
             type="text"
             placeholder="Buscar por nome, número de acervo..."
             class="search-input"
           />
         </div>
         <button class="filter-toggle" @click="showFilters = !showFilters">
-          Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : "" }}
+          Filtros {{ activeFiltersCount > 2 ? `(${activeFiltersCount - 2})` : '' }}
         </button>
         <button class="btn-primary" @click="showNewArtefactsModal = true">
           Novo Artefato
@@ -27,49 +150,64 @@
         <div class="filters-grid">
           <div class="filter-group">
             <label>Coleção</label>
-            <select v-model="filters.collection" class="filter-select">
+            <select v-model="artefatosStores.filters.collection" class="filter-select">
               <option value="">Todas</option>
-              <option value="Tibutius">Tibutius</option>
-              <option value="Joinville">Joinville</option>
-              <option value="Arqueologia">Arqueologia</option>
+              <option v-for="(collection, collectionIndex) in artefatosStores.categories.collections" :key="collectionIndex" :value="collection.id">{{ collection.name }}</option>
             </select>
           </div>
           <div class="filter-group">
             <label>Matéria-Prima</label>
-            <select v-model="filters.rawMaterial" class="filter-select">
+            <select v-model="artefatosStores.filters.raw_material" class="filter-select">
               <option value="">Todas</option>
-              <option value="Cerâmica">Cerâmica</option>
-              <option value="Animal">Animal</option>
-              <option value="Vegetal">Vegetal</option>
-              <option value="Mineral">Mineral</option>
+              <option v-for="(rawMaterials, rawMaterialsIndex) in artefatosStores.categories.raw_materials" :key="rawMaterialsIndex" :value="rawMaterials.id">{{ rawMaterials.name }}</option>
             </select>
           </div>
+
+          <!-- Sub-Type Filter -->
+          <div class="filter-group">
+            <label>Sub-Tipo</label>
+            <select v-model="artefatosStores.filters.sub_type" :disabled="artefatosStores.filters.raw_material == ''" class="filter-select">
+              <option value="">Todos</option>
+              <option v-for="(subType, subTypeIndex) in getSubTypes(artefatosStores.categories.sub_type, artefatosStores.filters.raw_material)" :key="subTypeIndex" :value="subType.id">{{ subType.name }}</option>
+            </select>
+          </div>
+
+          <!-- Conservation Status Filter -->
           <div class="filter-group">
             <label>Estado de Conservação</label>
-            <select v-model="filters.conservationStatus" class="filter-select">
+            <select v-model="artefatosStores.filters.conservation_status" class="filter-select">
               <option value="">Todos</option>
-              <option :value="1">Perfeito</option>
-              <option :value="2">Bom</option>
-              <option :value="3">Regular</option>
-              <option :value="4">Ruim</option>
-              <option :value="5">Crítico</option>
-              <option :value="6">Irreversível</option>
+              <option value="1">Excelente</option>
+              <option value="2">Bom</option>
+              <option value="3">Regular</option>
+              <option value="4">Ruim</option>
+              <option value="5">Crítico</option>
+              <option value="6">Irreversível</option>
             </select>
           </div>
+
+          <!-- Dating Filter -->
           <div class="filter-group">
-            <label>Localização</label>
-            <select v-model="filters.location" class="filter-select">
-              <option value="">Todas</option>
-              <option value="Reserva Antiga">Reserva Antiga</option>
-              <option value="Reserva Nova">Reserva Nova</option>
-              <option value="Em Exposição">Em Exposição</option>
-            </select>
+            <label>Período de Datação</label>
+            <div class="dating-inputs">
+              <input
+                v-model="artefatosStores.filters.dating_from"
+                type="number"
+                placeholder="De"
+                class="filter-input"
+              />
+              <input
+                v-model="artefatosStores.filters.dating_to"
+                type="number"
+                placeholder="Até"
+                class="filter-input"
+              />
+            </div>
           </div>
         </div>
         <div class="filters-actions">
-          <button class="btn-secondary" @click="clearFilters">
-            Limpar Filtros
-          </button>
+          <button class="btn-secondary" @click="artefatosStores.filteredArtefacts = []">Limpar Filtros</button>
+          <button class="btn-primary" @click="artefatosStores.getFilteredArtefacts()">Aplicar Filtros</button>
         </div>
       </div>
 
@@ -99,7 +237,7 @@
         </div>
         <div class="items-per-page">
           <label>Itens por página:</label>
-          <select v-model.number="itemsPerPage" class="items-select">
+          <select v-model.number="artefatosStores.filters.num_artefacts" class="items-select">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
@@ -109,11 +247,9 @@
       </div>
 
       <!-- Results Info -->
-      <div class="results-info">
-        <p>
-          Mostrando <strong>{{ paginatedArtefacts.length }}</strong> de
-          <strong>{{ filteredArtefacts.length }}</strong> artefatos
-        </p>
+      <div class="results-info" v-if="showComponent">
+        <p v-if="artefatosStores.filteredArtefacts.length == 0">Mostrando <strong>{{ artefatosStores.artefatos.results.length }}</strong> de <strong>{{ dashboardStore.dashboard.total_artefacts }}</strong> artefatos</p>
+        <p v-else>Mostrando <strong>{{ artefatosStores.filteredArtefacts.length }}</strong> de <strong>{{ artefatosStores.artefatos.length }}</strong> artefatos</p>
       </div>
 
       <!-- TABLE VIEW -->
@@ -129,34 +265,40 @@
               <th>Localização</th>
             </tr>
           </thead>
-          <tbody>
-            <tr
-              v-for="Artefact in paginatedArtefacts"
-              :key="Artefact.id"
-              class="Artefacts-row"
-            >
-              <td class="accession-number">{{ Artefact.id }}</td>
-              <td class="Artefacts-name">{{ Artefact.name }}</td>
-              <td>{{ Artefact.collection?.name }}</td>
+          <tbody v-if="artefatosStores.filteredArtefacts.length == 0">
+            <tr v-for="(artefact, artefactId) in artefatosStores.artefatos.results" :key="artefactId" class="Artefacts-row">
+              <td class="accession-number">{{ artefact.id }}</td>
+              <td class="Artefacts-name">{{ artefact.name }}</td>
+              <td>{{ artefact.collection.name }}</td>
               <td>
-                <span
-                  class="badge"
-                  :class="(Artefact.raw_material?.name || '').toLowerCase()"
-                >
-                  {{ Artefact.raw_material?.name }}
+                <span class="badge" :class="(artefact.raw_material || '').toString().toLowerCase()">
+                  {{ artefact.raw_material.name }}
                 </span>
               </td>
               <td>
-                <span
-                  class="status-badge"
-                  :class="
-                    stateConverter(Artefact.conservation_status).toLowerCase()
-                  "
-                >
-                  {{ stateConverter(Artefact.conservation_status) }}
+                <span class="status-badge" :class="(artefact.conservationStatus || '').toString().toLowerCase()">
+                  {{ stateConverter(artefact.conservation_status) }}
                 </span>
               </td>
-              <td>{{ Artefact.localization?.room }}</td>
+              <td>{{ artefact.localization.room }}</td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <tr v-for="(artefact, artefactId) in artefatosStores.filteredArtefacts.results" :key="artefactId" class="Artefacts-row">
+              <td class="accession-number">{{ artefact.id }}</td>
+              <td class="Artefacts-name">{{ artefact.name }}</td>
+              <td>{{ artefact.collection.name }}</td>
+              <td>
+                <span class="badge" :class="(artefact.raw_material || '').toString().toLowerCase()">
+                  {{ artefact.raw_material.name }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" :class="(artefact.conservationStatus || '').toString().toLowerCase()">
+                  {{ stateConverter(artefact.conservation_status) }}
+                </span>
+              </td>
+              <td>{{ artefact.localization.room }}</td>
             </tr>
           </tbody>
         </table>
@@ -221,19 +363,18 @@
       <!-- Pagination -->
       <div class="pagination">
         <button
-          :disabled="currentPage === 1"
-          @click="currentPage--"
+          :disabled="artefatosStores.filters.page === 1"
+          @click="artefatosStores.filters.page--; artefatosStores.getAllArtefacts()"
           class="pagination-btn"
         >
           Anterior
         </button>
         <div class="pagination-info">
-          Página <strong>{{ currentPage }}</strong> de
-          <strong>{{ totalPages }}</strong>
+          Página <strong>{{ artefatosStores.filters.page }}</strong> de <strong>{{ totalPages }}</strong>
         </div>
         <button
-          :disabled="currentPage === totalPages"
-          @click="currentPage++"
+          :disabled="artefatosStores.filters.page === totalPages"
+          @click="artefatosStores.filters.page++; artefatosStores.getAllArtefacts()"
           class="pagination-btn"
         >
           Próxima
@@ -242,233 +383,6 @@
     </div>
   </ManagerLayout>
 </template>
-
-<script setup>
-import { ref, reactive, computed, onMounted, watch } from "vue";
-import ManagerLayout from "@/layouts/ManagerLayout.vue";
-import { useArtefactsStore } from "@/stores/useArtefactStore";
-
-const store = useArtefactsStore();
-
-// REFS
-const artefactsList = ref([]);
-const searchQuery = ref("");
-const showFilters = ref(false);
-const viewMode = ref("table");
-const sortBy = ref("recent");
-const currentPage = ref(1);
-const itemsPerPage = ref(25);
-const showNewArtefactsModal = ref(false);
-const showEditModal = ref(false);
-const currentEditingArtefact = ref(null);
-
-// FILTERS
-const filters = reactive({
-  collection: "",
-  rawMaterial: "",
-  conservationStatus: "",
-  location: "",
-});
-
-// CONVERTER
-function stateConverter(item) {
-  switch (item) {
-    case 1:
-      return "Perfeito";
-    case 2:
-      return "Bom";
-    case 3:
-      return "Regular";
-    case 4:
-      return "Ruim";
-    case 5:
-      return "Crítico";
-    case 6:
-      return "Irreversível";
-    default:
-      return "Desconhecido";
-  }
-}
-
-// IMAGE FUNCTIONS
-function getImageUrl(artefact) {
-  try {
-    if (artefact.images?.length > 0) {
-      const image = artefact.images[0];
-      if (image.secure_url) {
-        return optimizeImageUrl(image.secure_url);
-      }
-      if (image.url) {
-        return optimizeImageUrl(image.url);
-      }
-    }
-
-    if (artefact.image_url) {
-      return optimizeImageUrl(artefact.image_url);
-    }
-
-    if (artefact.photo) {
-      return optimizeImageUrl(artefact.photo);
-    }
-
-    return null;
-  } catch (e) {
-    console.error("Erro ao obter URL da imagem:", e);
-    return null;
-  }
-}
-
-function optimizeImageUrl(url) {
-  if (!url) return null;
-
-  if (url.includes("cloudinary") || url.includes("/upload/")) {
-    return url.replace("/upload/", "/upload/f_auto,q_auto,w_400,h_300,c_fill/");
-  }
-
-  return url;
-}
-
-function handleImageError(event) {
-  event.target.src = "/fallback-image.png";
-  event.target.style.opacity = "0.5";
-}
-
-// COMPUTED - FILTRADOS + ORDENADOS
-const filteredArtefacts = computed(() => {
-  let result = artefactsList.value;
-
-  // BUSCA
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase();
-    result = result.filter(
-      (a) =>
-        (a.name || "").toLowerCase().includes(q) ||
-        (a.id || "").toLowerCase().includes(q)
-    );
-  }
-
-  // FILTROS
-  if (filters.collection) {
-    result = result.filter((a) => a.collection?.name === filters.collection);
-  }
-  if (filters.rawMaterial) {
-    result = result.filter((a) => a.raw_material?.name === filters.rawMaterial);
-  }
-  if (filters.conservationStatus) {
-    result = result.filter(
-      (a) => a.conservation_status == filters.conservationStatus
-    );
-  }
-  if (filters.location) {
-    result = result.filter((a) => a.localization?.room === filters.location);
-  }
-
-  // ORDENAÇÃO
-  if (sortBy.value === "recent") {
-    result.sort((a, b) => {
-      const dateA = new Date(a.created_at || 0);
-      const dateB = new Date(b.created_at || 0);
-      return dateB - dateA;
-    });
-  } else if (sortBy.value === "name") {
-    result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  } else if (sortBy.value === "id") {
-    result.sort((a, b) => (a.id || "").localeCompare(b.id || ""));
-  }
-
-  return result;
-});
-
-// COMPUTED - PAGINADOS
-const paginatedArtefacts = computed(() => {
-  if (!filteredArtefacts.value || filteredArtefacts.value.length === 0) {
-    return [];
-  }
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredArtefacts.value.slice(start, end);
-});
-
-// COMPUTED - TOTAL DE PÁGINAS
-const totalPages = computed(() => {
-  return Math.max(
-    1,
-    Math.ceil(filteredArtefacts.value.length / itemsPerPage.value)
-  );
-});
-
-// COMPUTED - CONTAGEM DE FILTROS ATIVOS
-const activeFiltersCount = computed(() => {
-  return Object.values(filters).filter((v) => v !== "").length;
-});
-
-// METHODS
-function clearFilters() {
-  filters.collection = "";
-  filters.rawMaterial = "";
-  filters.conservationStatus = "";
-  filters.location = "";
-  searchQuery.value = "";
-  currentPage.value = 1;
-}
-
-function viewArtefact(artefact) {
-  console.log("Visualizar artefato:", artefact);
-}
-
-function editArtefact(artefact) {
-  currentEditingArtefact.value = artefact;
-  showEditModal.value = true;
-}
-
-async function deleteArtefact(artefact) {
-  if (!confirm(`Tem certeza que deseja deletar "${artefact.name}"?`)) return;
-
-  try {
-    await store.remove(artefact.id);
-    artefactsList.value = artefactsList.value.filter(
-      (a) => a.id !== artefact.id
-    );
-    console.log("Artefato deletado com sucesso");
-  } catch (e) {
-    console.error("Erro ao deletar artefato:", e);
-    alert("Erro ao deletar artefato");
-  }
-}
-
-async function loadArtefacts() {
-  try {
-    const data = await store.fetchAll();
-
-    if (!Array.isArray(data)) {
-      console.warn("Dados retornados não são um array");
-      artefactsList.value = [];
-      return;
-    }
-
-    artefactsList.value = data;
-    console.log(`${data.length} artefatos carregados`);
-  } catch (e) {
-    console.error("Erro ao carregar artefatos:", e);
-    artefactsList.value = [];
-    alert("Erro ao carregar artefatos");
-  }
-}
-
-// LIFECYCLE
-onMounted(() => {
-  loadArtefacts();
-});
-
-// WATCHERS
-watch([searchQuery, filters], () => {
-  currentPage.value = 1;
-});
-
-watch(itemsPerPage, () => {
-  currentPage.value = 1;
-});
-</script>
 
 <style scoped>
 .Artefacts-list-container {
