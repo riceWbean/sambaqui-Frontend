@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, reactive, computed } from 'vue'
-import { useDashboardStore } from './dashboardStore';
+import { ref, reactive, computed, toRaw } from 'vue'
+import { useDashboardStore, useToastStore } from '@/stores';
 import { ArtefactsService } from '@/services';
 
 export const useArtefatosStore = defineStore('artefatos', () => {
@@ -20,6 +20,7 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     page: 1
   });
   const dashboardStore = useDashboardStore();
+  const toastStore = useToastStore();
 
   async function getCategories() {
     try {
@@ -51,5 +52,36 @@ export const useArtefatosStore = defineStore('artefatos', () => {
     }
   }
 
-  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts }
+  async function createArtefact(form) {
+    const fd = new FormData()
+
+    const raw = toRaw(form)
+
+    console.log(raw);
+
+    const files = raw.files || []
+
+    for (const [key, value] of Object.entries(raw)) {
+        if (key === 'files') continue
+        fd.append(key, value ?? '')
+    }
+
+    for (const file of files) {
+        fd.append('files', file)
+    }
+
+    try {
+        for (const [key, value] of fd) {
+            console.log(key, value);
+        }
+        const response = await ArtefactsService.createArtefact(fd);
+        await getAllArtefacts();
+        toastStore.notify("Artefato adicionado com sucesso!", "success");
+    }
+    catch(error) {
+        console.error('Error in POST Artefact: ', error);
+    }
+  }
+
+  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts, createArtefact }
 })
