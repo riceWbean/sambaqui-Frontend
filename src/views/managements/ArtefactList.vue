@@ -163,11 +163,10 @@
               <th>Matéria-Prima</th>
               <th>Estado</th>
               <th>Localização</th>
-              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="artifact in paginatedArtifacts" :key="artifact.id" class="artifact-row">
+            <tr v-for="artifact in paginatedArtifacts" :key="artifact.id" class="artifact-row" @click="viewArtifact(artifact)">
               <td class="accession-number">{{ artifact.accessionNumber }}</td>
               <td class="artifact-name">{{ artifact.name }}</td>
               <td>{{ artifact.collection }}</td>
@@ -182,9 +181,6 @@
                 </span>
               </td>
               <td>{{ artifact.location }}</td>
-              <td class="actions-cell">
-                <button class="action-btn view" title="Visualizar" @click="viewArtifact(artifact)">Ver</button>
-              </td>
             </tr>
           </tbody>
         </table>
@@ -518,6 +514,11 @@ export default {
   border: 1px solid #737373;
 }
 
+tr:hover{
+  background-color: #1b1b1b;
+  cursor: pointer;
+}
+
 /* Filters Panel */
 .filters-panel {
   background: #1e1e1e;
@@ -697,43 +698,43 @@ export default {
 }
 
 .badge.animal {
-  background-color: #d5f4e6;
-  color: #1e1e1e;
+  border: 1px solid #d5f4e6;
+  color: #d5f4e6;
 }
 
 .badge.vegetal {
-  background-color: #ffeaa7;
+  border: 1px solid #ffeaa7;
   color: #1e1e1e;
 }
 
 .badge.mineral {
-  background-color: #d6eaf8;
-  color: #1e1e1e;
+  border: 1px solid #d193e9;
+  color: #d193e9;
 }
 
 .badge.cerâmica {
-  background-color: hsl(5, 77%, 91%);
-  color: #1e1e1e;
+  border: 1px solid hsl(9, 55%, 62%);
+  color: hsl(9, 55%, 62%);
 }
 
 .status-badge.excelente {
-  background-color: #d5f4e6;
-  color: #1e1e1e;
+  border: 1px solid #2baa71;
+  color: #2baa71;
 }
 
 .status-badge.bom {
-  background-color: #d6eaf8;
-  color: #1e1e1e;
+  border: 1px solid #6e86d6;
+  color: #6e86d6;
 }
 
 .status-badge.regular {
-  background-color: #ffeaa7;
-  color: #1e1e1e;
+  border: 1px solid #ffeaa7;
+  color: #ffeaa7;
 }
 
 .status-badge.ruim {
-  background-color: #fadbd8;
-  color: #1e1e1e;
+  border: 1px solid #fadbd8;
+  color: #fadbd8;
 }
 
 .actions-cell {
@@ -746,16 +747,17 @@ export default {
   border: 1px solid #ecf0f1;
   cursor: pointer;
   padding: 0.25rem 0.75rem;
-  border-radius: 4px;
+  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.3s;
 }
 
 .action-btn.view {
-  color: #2980b9;
-  border-color: #d6eaf8;
-  background-color: #ecf7ff;
+  color: #ffffffd7;
+  border-color: #daeaf5d0;
+  background-color: transparent;
+  
 }
 
 .action-btn.view:hover {
