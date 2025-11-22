@@ -14,7 +14,7 @@
 
         <div class="header-right">
           <div class="user-info">
-            <span class="user-name">Usuário</span>
+            <span class="user-name">admin@admin.com</span>
             <div class="user-avatar">U</div>
           </div>
         </div>

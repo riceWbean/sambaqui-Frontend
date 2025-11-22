@@ -8,4 +8,17 @@ const api = axios.create({
   },
 })
 
+api.interceptors.request.use((config) => {
+  if (config.headers?.skipAuth) return config;
+  
+  const token = localStorage.getItem('access');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+    return config
+  }
+
+  return Promise.reject(new axios.Cancel("Sessão expirada"));
+});
+
 export default api

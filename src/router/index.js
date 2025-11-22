@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import ArtefactView from '@/views/collections/ArtefactView.vue'
 import AddArtefact from '@/views/managements/AddArtefact.vue'
 import path from 'node:path'
+import { useSignInStore } from '@/stores'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,4 +78,19 @@ scrollBehavior(to, from, savedPosition) {
   linkExactActiveClass: 'active',
 })
 
-export default router
+router.beforeEach(async (to, from, next) => {
+  const signinStore = useSignInStore();
+  
+  const isAuthenticated = await signinStore.verifyLogin();
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (isAuthenticated) {
+      next();
+      return;
+    }
+    next('/signin');
+  }
+  next();
+});
+
+export default router;

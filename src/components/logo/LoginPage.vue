@@ -6,7 +6,6 @@ import { ImageRight, InputsVue } from '..';
         <div class="left">
             <h1>Bem vindo novamente!</h1>
             <InputsVue />
-            <button class="btn">Entrar</button>
         </div>
         <div class="right">
             <ImageRight />
