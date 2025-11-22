@@ -7,6 +7,7 @@ import path from 'node:path'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  
   routes: [
     {
       path: '/',
@@ -30,7 +31,7 @@ const router = createRouter({
         { path: "", name: "management", component: () => import('../views/managements/Management.vue') },
         { path: ":id", name: "managementArtefact", component: () => import('../views/managements/ArtefactDetail.vue') },
         { path: "add", name: "addArtefact", component: AddArtefact },
-        { path: "categories", name: "categories", component: ""},
+        { path: "categories", name: "categories", component: "" },
         { path: "sub-types", name: "subTypes", component: SubType },
         { path: "raw-materials", name: "rawMaterials", component: () => import('../views/managements/RawMaterials.vue') },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
@@ -59,6 +60,14 @@ const router = createRouter({
       component: () => import('../views/acervo/AcervoView.vue')
     },
   ],
+
+scrollBehavior(to, from, savedPosition) {
+    // Retorna o comportamento de scroll desejado.
+    // { top: 0 } fará o scroll ir para o topo (posição 0)
+    // sempre que você navegar para uma nova página.
+    return { top: 0 } 
+  },
+
   linkActiveClass: 'active',
   linkExactActiveClass: 'active',
 })

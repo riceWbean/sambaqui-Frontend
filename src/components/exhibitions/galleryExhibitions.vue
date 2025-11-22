@@ -11,12 +11,13 @@ const carregando = ref(false);
 const pagina = ref(1);
 const acabou = ref(false);
 
-// -----------------------------------------
-// 🔥 PEGANDO TODAS AS IMAGENS DOS ARTEFATOS
-// -----------------------------------------
+// ---------------------------------------------------------
+// 🔥 MONTA LISTA USANDO OS DADOS REAIS DO BACKEND
+// ---------------------------------------------------------
 function montarListaDeImagens() {
   const lista = [];
 
+  // agora os dados vêm da API via store
   artefatosStore.artefatos.forEach((artefato) => {
     artefato.images.forEach((img) => {
       lista.push({
@@ -33,16 +34,20 @@ function montarListaDeImagens() {
   return lista;
 }
 
-// -----------------------------------------
-// 🔥 FUNÇÃO DE PAGE LOAD (APENAS SIMULAÇÃO)
-// -----------------------------------------
+// ---------------------------------------------------------
+// 🔥 LOAD PAGINADO — AGORA ESPERA O BACKEND
+// ---------------------------------------------------------
 async function carregarImagens() {
   if (carregando.value || acabou.value) return;
   carregando.value = true;
 
+  // ⬇️ garante que o backend esteja carregado antes de montar tudo
+  if (!artefatosStore.artefatos.length) {
+    await artefatosStore.fetchArtefatos();
+  }
+
   const todas = montarListaDeImagens();
 
-  // simula paginação carregando apenas 6 por vez
   const inicio = (pagina.value - 1) * 6;
   const fim = pagina.value * 6;
   const lote = todas.slice(inicio, fim);
@@ -57,24 +62,30 @@ async function carregarImagens() {
   carregando.value = false;
 }
 
-// -----------------------------------------
-// 🔥 CLICK NA IMAGEM → VAI PARA O ARTEFATO
-// -----------------------------------------
+// ---------------------------------------------------------
+// 🔥 NAVEGAÇÃO
+// ---------------------------------------------------------
 function abrirArtefato(id) {
   router.push(`/artefact/${id}`);
 }
 
-// scroll infinito
+// ---------------------------------------------------------
+// 🔥 SCROLL INFINITO
+// ---------------------------------------------------------
 window.addEventListener("scroll", () => {
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
     carregarImagens();
   }
 });
 
+// ---------------------------------------------------------
+// 🔥 PRIMEIRO LOAD
+// ---------------------------------------------------------
 onMounted(() => {
   carregarImagens();
 });
 </script>
+
 
 <template>
   <div class="masonry" v-motion-slide-visible-once-bottom :delay="300" :duration="500">

@@ -5,7 +5,11 @@
             <li><router-link to="/about">Sobre</router-link></li>
             <li><router-link to="/exhibitions">Exibições</router-link></li>
             <li><router-link to="/acervo">Acervo</router-link></li>
-            <li><img src="/src/assets/icons/search_icon.svg" alt="search" /></li>
+            <li>
+                <img src="/src/assets/icons/search_icon.svg" alt="search" @click="irParaBusca"
+                    style="cursor: pointer" />
+            </li>
+
             <li><router-link to="/signin"><svg width="24" height="26" viewBox="0 0 24 26" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -16,6 +20,15 @@
         </ul>
     </header>
 </template>
+<script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+function irParaBusca() {
+  router.push("/acervo");
+}
+</script>
+
 <style scoped>
 @import '@/assets/sass/header/_headerComponent.scss';
 </style>

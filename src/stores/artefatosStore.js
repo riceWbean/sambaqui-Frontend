@@ -1,55 +1,39 @@
 import { defineStore } from 'pinia'
-import { ref, reactive, computed } from 'vue'
-import { useDashboardStore } from './dashboardStore';
-import { ArtefactsService } from '@/services';
+import { ref, computed } from 'vue'
+import ArtefactsService from '@/services/artefactsServices'
 
 export const useArtefatosStore = defineStore('artefatos', () => {
-  const artefatos = ref([]);
-  const filteredArtefacts = ref([]);
-  const categories = ref({});
-  const filters = reactive({
-    collection: '',
-    raw_material: '',
-    sub_type: '',
-    conservation_status: '',
-    location: '',
-    dating_from: '',
-    dating_to: '',
-    search: '',
-    num_artefacts: 10,
-    page: 1
-  });
-  const dashboardStore = useDashboardStore();
+  const artefatos = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-  async function getCategories() {
+  const count = computed(() => artefatos.value.length)
+
+  // 👉 método que você chama no componente
+  async function fetchAll(num_artefacts = 20, page = 1) {
+    loading.value = true
+    error.value = null
+
     try {
-        const response = await ArtefactsService.getCategories();
-        categories.value = response;
-    }
-    catch(error) {
-        console.error('Error in GET categories: ', error);
+      const data = await ArtefactsService.getAllArtefacts(num_artefacts, page)
+
+      // seu backend provavelmente retorna:
+      // { results: [ ... ], count: xx }
+      artefatos.value = Array.isArray(data.results) ? data.results : data
+    } catch (err) {
+      console.error("Erro no store:", err)
+      error.value = 'Falha ao buscar artefatos'
+      throw err
+    } finally {
+      loading.value = false
     }
   }
 
-  async function getAllArtefacts() {
-    try {
-        const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
-        artefatos.value = response;
-    }
-    catch(error) {
-        console.error('Error in GET All Artefacts: ', error);
-    }
+  return {
+    artefatos,
+    loading,
+    error,
+    count,
+    fetchAll         // ← IMPORTANTE: GARANTIR QUE ESTÁ RETORNANDO
   }
-
-  async function getFilteredArtefacts() {
-    try {
-        const response = await ArtefactsService.getFilteredArtefacts(filters);
-        filteredArtefacts.value = response;
-    }
-    catch(error) {
-        console.error('Error in GET filtered artefacts: ', error);
-    }
-  }
-
-  return { artefatos, filteredArtefacts, categories, filters, dashboardStore, getCategories, getAllArtefacts, getFilteredArtefacts }
 })

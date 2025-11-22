@@ -111,17 +111,6 @@ onMounted(() => {
             color: #444;
         ">${local.descricao}</p>
 
-        <button style="
-            background: #1d3557;
-            color: white;
-            border: none;
-            padding: 8px 10px;
-            width: 100%;
-            border-radius: 6px;
-            cursor: pointer;
-        " onclick="window.open('${local.rota}', '_self')">
-          Ver mais
-        </button>
       </div>
     `
 

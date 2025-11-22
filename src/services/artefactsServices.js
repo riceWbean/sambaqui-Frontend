@@ -55,6 +55,12 @@ class ArtefactsService {
             throw new Error('Falha ao deletar artefato: ' + error.message);
         }
     }
+    async getFilteredArtefacts(params) {
+    const query = new URLSearchParams(params).toString()
+    const { data } = await api.get(`/artefacts?${query}`)
+    return data
+}
+
 }
 
 export default new ArtefactsService();
