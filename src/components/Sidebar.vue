@@ -73,9 +73,9 @@
         <ul class="nav-menu">
           <li>
             <router-link 
-              to="/locations" 
+              to="/siteMap" 
               class="nav-link"
-              :class="{ active: isActive('/locations') }"
+              :class="{ active: isActive('/siteMap') }"
             >
               <span class="nav-text">Sítios Arqueológicos</span>
             </router-link>

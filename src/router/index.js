@@ -59,6 +59,11 @@ const router = createRouter({
       name: 'acervo',
       component: () => import('../views/acervo/AcervoView.vue')
     },
+    {
+      path: '/siteMap',
+      name: 'siteMap',
+      component: () => import('../views/SiteMapView.vue')
+    }
   ],
 
 scrollBehavior(to, from, savedPosition) {

@@ -59,7 +59,6 @@
                             {{ distanciaDisplay }}
                             <span class="unit">km</span>
                         </div>
-                        <div class="distance-label">{{ labelDistancia }}</div>
                     </div>
 
                     <div v-else class="sem-localizacao">
@@ -370,18 +369,6 @@ section h2 {
     display: inline-block;
     padding: 12px;
     border-radius: 8px;
-}
-
-.distance-value.perto {
-    background: #10b981;
-}
-
-.distance-value.medio {
-    background: #f59e0b;
-}
-
-.distance-value.longe {
-    background: #ef4444;
 }
 
 .unit {
