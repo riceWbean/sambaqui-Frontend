@@ -166,7 +166,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="Artefact in Artefacts" :key="Artefact.id" class="Artefacts-row">
+            <tr v-for="Artefact in Artefacts" :key="Artefact.id" class="Artefacts-row" @click="viewArtefact(Artefact.id)">
               <td class="accession-number">{{ Artefact.id }}</td>
               <td class="Artefacts-name">{{ Artefact.name }}</td>
               <td>{{ Artefact.collection.name }}</td>
@@ -228,6 +228,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
 import ArtefactCard from '@/components/ArtefactCard.vue'
 import { useArtefactsStore } from '@/stores/useArtefactStore'
+import router from '@/router'
 
 const Artefacts = ref([])
 
@@ -287,6 +288,10 @@ const filteredArtefacts = computed(() => {
 
   return result
 })
+
+function viewArtefact(id) {
+  router.push(`/management/${id}`)
+}
 
 const paginatedArtefacts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
