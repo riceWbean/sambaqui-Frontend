@@ -28,4 +28,7 @@
 
 <style scoped>
 @import '@/assets/sass/about/_topSection.scss';
+.images img{
+  width: 450px;
+}
 </style>

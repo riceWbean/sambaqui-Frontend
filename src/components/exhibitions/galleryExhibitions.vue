@@ -1,76 +1,72 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import { useArtefatosStore } from "@/stores/artefatosStore";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const artefatosStore = useArtefatosStore();
 
 const imagens = ref([]);
-const pagina = ref(1);
 const carregando = ref(false);
+const pagina = ref(1);
 const acabou = ref(false);
 
-// --------------------------------------------------------------------------------
-// JSON DE MOCK (DESCOMENTE PARA USAR EM VEZ DA API)
+// -----------------------------------------
+// 🔥 PEGANDO TODAS AS IMAGENS DOS ARTEFATOS
+// -----------------------------------------
+function montarListaDeImagens() {
+  const lista = [];
 
-const mockImagens = [
-  { attachment_key: "mock-1", url: "https://picsum.photos/400/600", description: "Mock Imagem 1" },
-  { attachment_key: "mock-2", url: "https://picsum.photos/600/400", description: "Mock Imagem 2" },
-  { attachment_key: "mock-3", url: "https://picsum.photos/500/800", description: "Mock Imagem 3" },
-  { attachment_key: "mock-4", url: "https://picsum.photos/800/500", description: "Mock Imagem 4" },
-  { attachment_key: "mock-5", url: "https://picsum.photos/450/700", description: "Mock Imagem 5" },
-  { attachment_key: "mock-6", url: "https://picsum.photos/700/450", description: "Mock Imagem 6" },
-  { attachment_key: "mock-7", url: "https://picsum.photos/550/900", description: "Mock Imagem 7" },
-  { attachment_key: "mock-8", url: "https://picsum.photos/900/550", description: "Mock Imagem 8" },
-  { attachment_key: "mock-9", url: "https://picsum.photos/420/680", description: "Mock Imagem 9" },
-  { attachment_key: "mock-10", url: "https://picsum.photos/680/420", description: "Mock Imagem 10" },
-];
+  artefatosStore.artefatos.forEach((artefato) => {
+    artefato.images.forEach((img) => {
+      lista.push({
+        id_artefato: artefato.id,
+        name: artefato.name,
+        raw_material: artefato.raw_material?.name,
+        sub_type: artefato.sub_type?.name,
+        url: img.url_photo,
+        public_id: img.public_id_cloudinary,
+      });
+    });
+  });
 
-// --------------------------------------------------------------------------------
+  return lista;
+}
 
-
-// função para carregar imagens do backend
+// -----------------------------------------
+// 🔥 FUNÇÃO DE PAGE LOAD (APENAS SIMULAÇÃO)
+// -----------------------------------------
 async function carregarImagens() {
   if (carregando.value || acabou.value) return;
   carregando.value = true;
 
-  try {
-    // --------------------------------------------------------------------------------
-    // LÓGICA DA API (DEIXE COMENTADO PARA USAR O MOCK)
-    // const response = await axios.get(`media/images/?descricao=1&page=${pagina.value}`);
-    // const novosDados = response.data.results || response.data;
-    // --------------------------------------------------------------------------------
+  const todas = montarListaDeImagens();
 
-    // --------------------------------------------------------------------------------
-    // LÓGICA DO MOCK (DESCOMENTE A LINHA ABAIXO PARA USAR O MOCK)
-    const novosDados = mockImagens;
-    // --------------------------------------------------------------------------------
+  // simula paginação carregando apenas 6 por vez
+  const inicio = (pagina.value - 1) * 6;
+  const fim = pagina.value * 6;
+  const lote = todas.slice(inicio, fim);
 
-    if (novosDados.length === 0) {
-      acabou.value = true;
-    } else {
-      imagens.value.push(...novosDados);
-      // No modo mock, incrementamos a página apenas para simular,
-      // mas os dados serão sempre os mesmos.
-      pagina.value++;
-      
-      // No modo mock, se a página for maior que 1, simulamos o fim dos dados
-      // para evitar loop infinito com os dados estáticos do mock.
-      // if (pagina.value > 1 && mockImagens) {
-      //   acabou.value = true;
-      // }
-    }
-  } catch (err) {
-    console.error("Erro ao carregar imagens:", err);
-    // Se ocorrer um erro com a API, você pode adicionar uma lógica aqui
-    // para tentar carregar o mock como fallback, se desejar.
-  } finally {
-    carregando.value = false;
+  if (lote.length === 0) {
+    acabou.value = true;
+  } else {
+    imagens.value.push(...lote);
+    pagina.value++;
   }
+
+  carregando.value = false;
 }
-// infinite scroll
+
+// -----------------------------------------
+// 🔥 CLICK NA IMAGEM → VAI PARA O ARTEFATO
+// -----------------------------------------
+function abrirArtefato(id) {
+  router.push(`/artefact/${id}`);
+}
+
+// scroll infinito
 window.addEventListener("scroll", () => {
-  if (
-    window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 300
-  ) {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
     carregarImagens();
   }
 });
@@ -82,14 +78,62 @@ onMounted(() => {
 
 <template>
   <div class="masonry" v-motion-slide-visible-once-bottom :delay="300" :duration="500">
-    <div class="item" v-for="img in imagens" :key="img.attachment_key">
-      <img :src="img.url" :alt="img.description || 'imagem'" />
+    <div 
+      class="item" 
+      v-for="img in imagens" 
+      :key="img.public_id"
+      @click="abrirArtefato(img.id_artefato)"
+    >
+      <img :src="img.url" :alt="img.name" />
+      
+      <!-- legenda opcional -->
+      <div class="overlay">
+        <h3>{{ img.name }}</h3>
+        <p>{{ img.raw_material }} → {{ img.sub_type }}</p>
+      </div>
     </div>
-    <div v-if="carregando && pagina > 1" class="loading-indicator">Carregando mais...</div>
-    <div v-else-if="acabou" class="end-indicator">Fim das imagens.</div>
-    
+
+    <div v-if="carregando" class="loading-indicator">
+      Carregando mais...
+    </div>
+
+    <div v-if="acabou" class="end-indicator">
+      Fim das imagens.
+    </div>
   </div>
 </template>
+
 <style scoped>
 @import '@/assets/sass/exhibitions/_galleryExhibitions.scss';
+
+/* extra opcional (caso queira overlay suave) */
+.item {
+  position: relative;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.item:hover {
+  transform: scale(1.02);
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: #fff;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.item:hover .overlay {
+  opacity: 1;
+}
+.masonry {
+  column-count: 4!important;
+  column-gap: 1rem;
+}
+
 </style>

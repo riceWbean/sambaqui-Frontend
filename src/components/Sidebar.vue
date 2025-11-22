@@ -40,10 +40,10 @@
             </router-link>
           </li>
           <li>
-            <router-link 
-              to="/artifacts/new" 
+            <router-link
+              to="/management/add"
               class="nav-link"
-              :class="{ active: isActive('/artifacts/new') }"
+              :class="{ active: isActive('/management/add') }"
             >
               <span class="nav-text">Novo Artefato</span>
             </router-link>
@@ -107,7 +107,7 @@
         <ul class="nav-menu">
           <li>
             <router-link 
-              to="/raw-materials" 
+              to="/management/raw-materials" 
               class="nav-link"
               :class="{ active: isActive('/raw-materials') }"
             >
@@ -116,20 +116,11 @@
           </li>
           <li>
             <router-link 
-              to="/subtypes" 
+              to="/management/sub-types" 
               class="nav-link"
-              :class="{ active: isActive('/subtypes') }"
+              :class="{ active: isActive('/management/sub-types') }"
             >
               <span class="nav-text">Sub-Tipos</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link 
-              to="/conservation-status" 
-              class="nav-link"
-              :class="{ active: isActive('/conservation-status') }"
-            >
-              <span class="nav-text">Estado de Conservação</span>
             </router-link>
           </li>
         </ul>
