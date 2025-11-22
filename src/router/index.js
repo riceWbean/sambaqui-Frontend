@@ -37,7 +37,7 @@ const router = createRouter({
         { path: "raw-materials", name: "rawMaterials", component: () => import('../views/managements/RawMaterials.vue') },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
 
     {
