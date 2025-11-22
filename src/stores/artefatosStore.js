@@ -22,25 +22,33 @@ export const useArtefatosStore = defineStore('artefatos', () => {
   const dashboardStore = useDashboardStore();
   const toastStore = useToastStore();
 
-  const count = computed(() => artefatos.value.length)
-
-  // 👉 método que você chama no componente
-  async function fetchAll(num_artefacts = 20, page = 1) {
-    loading.value = true
-    error.value = null
-
+  async function getCategories() {
     try {
-      const data = await ArtefactsService.getAllArtefacts(num_artefacts, page)
+        const response = await ArtefactsService.getCategories();
+        categories.value = response;
+    }
+    catch(error) {
+        console.error('Error in GET categories: ', error);
+    }
+  }
 
-      // seu backend provavelmente retorna:
-      // { results: [ ... ], count: xx }
-      artefatos.value = Array.isArray(data.results) ? data.results : data
-    } catch (err) {
-      console.error("Erro no store:", err)
-      error.value = 'Falha ao buscar artefatos'
-      throw err
-    } finally {
-      loading.value = false
+  async function getAllArtefacts() {
+    try {
+        const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
+        artefatos.value = response;
+    }
+    catch(error) {
+        console.error('Error in GET All Artefacts: ', error);
+    }
+  }
+
+  async function getFilteredArtefacts() {
+    try {
+        const response = await ArtefactsService.getFilteredArtefacts(filters);
+        filteredArtefacts.value = response;
+    }
+    catch(error) {
+        console.error('Error in GET filtered artefacts: ', error);
     }
   }
 

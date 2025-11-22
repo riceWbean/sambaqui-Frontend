@@ -25,7 +25,7 @@
             <p class="register-info">Cadastrado em: <strong>{{ formatDate(artefact.register_date) }}</strong></p>
           </div>
           <div class="header-actions">
-            <button class="btn-primary" @click="editArtefact">Editar</button>
+            <button class="btn-primary" @click="showEditModal = true">Editar</button>
             <button class="btn-secondary" @click="goBack">Voltar</button>
           </div>
         </div>
@@ -182,17 +182,194 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-          <button class="btn-primary" @click="editArtefact">Editar Artefato</button>
+          <button class="btn-primary" @click="showEditModal = true">Editar Artefato</button>
           <button class="btn-danger" @click="deleteArtefact">Deletar Artefato</button>
           <button class="btn-secondary" @click="goBack">Voltar para Listagem</button>
         </div>
       </div>
     </div>
+
+    <!-- MODAL DE EDIÇÃO -->
+    <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>Editar Artefato</h2>
+          <button class="close-btn" @click="showEditModal = false">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <form @submit.prevent="handleSaveEdit">
+            <!-- Basic Information -->
+            <section class="form-section">
+              <h3>Informações Básicas</h3>
+              
+              <div class="form-group">
+                <label>Nome *</label>
+                <input 
+                  v-model="editForm.name" 
+                  type="text" 
+                  required
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Outro Nome</label>
+                <input 
+                  v-model="editForm.other_name" 
+                  type="text"
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Estado de Conservação *</label>
+                  <select v-model.number="editForm.conservation_status" required class="form-input">
+                    <option value="">Selecione o estado</option>
+                    <option :value="1">Excelente</option>
+                    <option :value="2">Bom</option>
+                    <option :value="3">Regular</option>
+                    <option :value="4">Ruim</option>
+                    <option :value="5">Crítico</option>
+                    <option :value="6">Irreversível</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Datação</label>
+                  <input 
+                    v-model.number="editForm.dating" 
+                    type="number"
+                    placeholder="Anos atrás"
+                    class="form-input"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Location Information -->
+            <section class="form-section">
+              <h3>Localização</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Sala</label>
+                  <input 
+                    v-model="editForm.localization.room" 
+                    type="text"
+                    class="form-input"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Prateleira</label>
+                  <input 
+                    v-model="editForm.localization.shelf" 
+                    type="text"
+                    class="form-input"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Estante</label>
+                  <input 
+                    v-model="editForm.localization.bookcase" 
+                    type="text"
+                    class="form-input"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Physical Characteristics -->
+            <section class="form-section">
+              <h3>Características Físicas</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Comprimento (cm)</label>
+                  <input 
+                    v-model.number="editForm.dimension_length" 
+                    type="number"
+                    step="0.01"
+                    class="form-input"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Largura (cm)</label>
+                  <input 
+                    v-model.number="editForm.dimension_width" 
+                    type="number"
+                    step="0.01"
+                    class="form-input"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Peso (g)</label>
+                  <input 
+                    v-model.number="editForm.weigth" 
+                    type="number"
+                    step="0.01"
+                    class="form-input"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Descriptions -->
+            <section class="form-section">
+              <h3>Descrições</h3>
+              
+              <div class="form-group full-width">
+                <label>Descrição</label>
+                <textarea 
+                  v-model="editForm.description" 
+                  rows="4"
+                  class="form-input"
+                ></textarea>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Observações</label>
+                <textarea 
+                  v-model="editForm.observation" 
+                  rows="3"
+                  class="form-input"
+                ></textarea>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Referências Bibliográficas</label>
+                <textarea 
+                  v-model="editForm.bibliographic_reference" 
+                  rows="3"
+                  class="form-input"
+                ></textarea>
+              </div>
+            </section>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" @click="showEditModal = false">
+                Cancelar
+              </button>
+              <button type="submit" class="btn-primary" :disabled="savingEdit">
+                {{ savingEdit ? 'Salvando...' : 'Salvar Alterações' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </ManagerLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
 import ImageGallery from '@/components/ImageGallery-Composition.vue'
@@ -207,9 +384,9 @@ import {
   getEnumLabel
 } from '@/utils/artefactEnums.js'
 import { useArtefactsStore } from '@/stores/useArtefactStore'
+import { ArtefactsService } from '@/services'
 
 const store = useArtefactsStore()
-
 const route = useRoute()
 const router = useRouter()
 
@@ -217,6 +394,26 @@ const router = useRouter()
 const artefact = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const showEditModal = ref(false)
+const savingEdit = ref(false)
+
+const editForm = reactive({
+  name: '',
+  other_name: '',
+  conservation_status: '',
+  dating: null,
+  localization: {
+    room: '',
+    shelf: '',
+    bookcase: ''
+  },
+  dimension_length: null,
+  dimension_width: null,
+  weigth: null,
+  description: '',
+  observation: '',
+  bibliographic_reference: ''
+})
 
 // Computed
 const breadcrumb = computed(() => {
@@ -270,12 +467,10 @@ const fetchArtefact = async () => {
   try {
     loading.value = true
     error.value = null
-
     const artefactId = route.params.id
-
-
     const response = await store.fetchById(artefactId)
     artefact.value = response
+    initializeEditForm()
   } catch (err) {
     error.value = err.message
   } finally {
@@ -283,20 +478,72 @@ const fetchArtefact = async () => {
   }
 }
 
-const editArtefact = () => {
-  router.push(`/artefacts/${artefact.value.id}/edit`)
+const initializeEditForm = () => {
+  if (artefact.value) {
+    editForm.name = artefact.value.name || ''
+    editForm.other_name = artefact.value.other_name || ''
+    editForm.conservation_status = artefact.value.conservation_status || ''
+    editForm.dating = artefact.value.dating || null
+    editForm.localization = {
+      room: artefact.value.localization?.room || '',
+      shelf: artefact.value.localization?.shelf || '',
+      bookcase: artefact.value.localization?.bookcase || ''
+    }
+    editForm.dimension_length = artefact.value.dimension_length || null
+    editForm.dimension_width = artefact.value.dimension_width || null
+    editForm.weigth = artefact.value.weigth || null
+    editForm.description = artefact.value.description || ''
+    editForm.observation = artefact.value.observation || ''
+    editForm.bibliographic_reference = artefact.value.bibliographic_reference || ''
+  }
 }
+
+async function handleSaveEdit() {
+  try {
+    savingEdit.value = true
+    
+    const payload = {
+      name: editForm.name,
+      other_name: editForm.other_name,
+      collection: artefact.value.collection.id,
+      raw_material: artefact.value.raw_material.id,
+      sub_type: artefact.value.sub_type.id,
+      archaeological_site: artefact.value.archaeological_site.id,
+      localization: artefact.value.localization.id,
+      conservation_status: parseInt(editForm.conservation_status),
+      completeness: artefact.value.completeness,
+      detail_conservation_status: editForm.detail_conservation_status || artefact.value.detail_conservation_status,
+      collection_category: artefact.value.collection_category,
+      ethnic_group: artefact.value.ethnic_group,
+      technique: artefact.value.technique,
+      dating: editForm.dating,
+      dimension_length: editForm.dimension_length || artefact.value.dimension_length,
+      dimension_width: editForm.dimension_width || artefact.value.dimension_width,
+      weigth: editForm.weigth || artefact.value.weigth,
+      description: editForm.description || artefact.value.description,
+      observation: editForm.observation,
+      bibliographic_reference: editForm.bibliographic_reference,
+      reserved: artefact.value.reserved
+    }
+
+    await ArtefactsService.updateArtefact(artefact.value.id, payload)
+    
+    await fetchArtefact()
+    showEditModal.value = false
+    alert('Artefato atualizado com sucesso!')
+  } catch (error) {
+    console.error('Erro ao salvar:', error)
+    alert('Erro ao salvar as alterações: ' + error.message)
+  } finally {
+    savingEdit.value = false
+  }
+}
+
 
 const deleteArtefact = () => {
   if (confirm(`Tem certeza que deseja deletar "${artefact.value.name}"?`)) {
     console.log('Deletar artefato:', artefact.value.id)
-    // Implementar lógica de deleção
   }
-}
-
-const downloadReport = () => {
-  console.log('Baixar relatório do artefato:', artefact.value.id)
-  // Implementar lógica de download
 }
 
 const goBack = () => {
@@ -319,16 +566,218 @@ watch(
     fetchArtefact()
   }
 )
+
+watch(showEditModal, (newVal) => {
+  if (newVal) {
+    initializeEditForm()
+  }
+})
 </script>
 
 <style scoped>
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 700px;
+  width: 90%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #313131;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  color: #3498db;
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section h3 {
+  margin: 0 0 1rem 0;
+  color: #737373;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #313131;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.form-input {
+  padding: 0.75rem;
+  background-color: #262626;
+  border: 1px solid #313131;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  background-color: #1e1e1e;
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select.form-input {
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #313131;
+  background-color: #262626;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #737373;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a5a5a;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+/* Existing styles */
 .artefact-detail-container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-/* Loading State */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -358,7 +807,6 @@ watch(
   font-size: 1.1rem;
 }
 
-/* Error State */
 .error-state {
   background: #1e1e1e;
   border-radius: 8px;
@@ -382,7 +830,6 @@ watch(
   margin: 0 0 1.5rem 0;
 }
 
-/* Header */
 .detail-header {
   display: flex;
   justify-content: space-between;
@@ -412,7 +859,6 @@ watch(
   gap: 1rem;
 }
 
-/* Content Grid */
 .artefact-content {
   display: flex;
   flex-direction: column;
@@ -432,7 +878,6 @@ watch(
   gap: 2rem;
 }
 
-/* Card Styles */
 .card {
   background: #1e1e1e;
   border-radius: 8px;
@@ -493,7 +938,7 @@ watch(
 
 .conservation-info {
   padding: 1rem;
-  background: #1e1e1e;;
+  background: #1e1e1e;
   border-radius: 4px;
 }
 
@@ -507,7 +952,6 @@ watch(
   margin-top: 0;
 }
 
-/* Info Grid */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -534,7 +978,6 @@ watch(
   font-size: 1rem;
 }
 
-/* Description Text */
 .description-text {
   margin: 0;
   color: white;
@@ -543,54 +986,12 @@ watch(
   word-wrap: break-word;
 }
 
-/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-secondary,
-.btn-danger {
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  border: none;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: #737373;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #2980b9;
-}
-
-.btn-secondary {
-  background-color: #ecf0f1;
-  color: #2c3e50;
-  border: 1px solid transparent;
-}
-
-.btn-secondary:hover {
-  background-color: #d5dbdb;
-  border: 1px solid #737373
-}
-
-.btn-danger {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #c0392b;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .detail-grid {
     grid-template-columns: 1fr;
@@ -618,6 +1019,22 @@ watch(
   }
 
   .action-buttons button {
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
     width: 100%;
   }
 }

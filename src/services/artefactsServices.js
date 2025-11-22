@@ -45,7 +45,7 @@ class ArtefactsService {
 
     async updateArtefact(id, ArtefactsData) {
         try {
-            await api.put(`/artefacts/${id}`, ArtefactsData);
+            await api.put(`/artefacts/${id}/`, ArtefactsData);
             console.log('artefato atualizado com sucesso');
         } catch (error) {
             throw new Error('Falha ao atualizar artefato: ' + error.message);
