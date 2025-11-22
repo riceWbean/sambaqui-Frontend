@@ -382,28 +382,6 @@ function viewDetails(log) {
     log.reason,
   ])
 
-  const csvContent = [
-    headers.join(","),
-    ...rows.map((row) =>
-      row
-        .map((cell) => `"${cell.toString().replace(/"/g, '""')}"`)
-        .join(",")
-    ),
-  ].join("\n")
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-  const link = document.createElement("a")
-  const url = URL.createObjectURL(blob)
-
-  link.setAttribute("href", url)
-  link.setAttribute("download", `auditoria-${new Date().toISOString().split('T')[0]}.csv`)
-  link.style.visibility = "hidden"
-
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-
-
 async function loadLogs() {
   try {
     const data = await store.fetchAll()

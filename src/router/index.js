@@ -15,9 +15,9 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/collection",
-      name: "collection",
-      component: "",
+      path: "/collections",
+      name: "collections",
+      component: () => import('../views/collections/CollectionsView.vue'),
     },
     {
       path: "/artefact/:id/",
@@ -37,7 +37,7 @@ const router = createRouter({
         { path: "raw-materials", name: "rawMaterials", component: () => import('../views/managements/RawMaterials.vue') },
         { path: "artefactsList", name: "artefactsList", component: () => import('../views/managements/ArtefactList.vue') },
       ],
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
 
     {
@@ -89,6 +89,13 @@ router.beforeEach(async (to, from, next) => {
       return;
     }
     next('/signin');
+  }
+  if (to.path == "/signin") {
+    if (isAuthenticated) {
+      next('/management');
+      return;
+    }
+    next();
   }
   next();
 });

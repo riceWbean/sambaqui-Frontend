@@ -82,7 +82,7 @@
           </li>
           <li>
             <router-link 
-              to="/reserves" 
+              to="/management/log-changes" 
               class="nav-link"
               :class="{ active: isActive('/reserves') }"
             >
