@@ -1,6 +1,6 @@
 <template>
   <ManagerLayout page-title="Listagem de Artefatos" breadcrumb="Acervo > Listagem de Artefatos">
-    <div class="artifact-list-container">
+    <div class="Artefacts-list-container">
       <!-- Search and Filters Bar -->
       <div class="search-filters-bar">
         <div class="search-box">
@@ -16,7 +16,7 @@
           Filtros {{ activeFiltersCount > 0 ? `(${activeFiltersCount})` : '' }}
         </button>
 
-        <button class="btn-primary" @click="showNewArtifactModal = true">
+        <button class="btn-primary" @click="showNewArtefactsModal = true">
           Novo Artefato
         </button>
       </div>
@@ -149,12 +149,12 @@
 
       <!-- Results Info -->
       <div class="results-info">
-        <p>Mostrando <strong>{{ paginatedArtifacts.length }}</strong> de <strong>{{ filteredArtifacts.length }}</strong> artefatos</p>
+        <p>Mostrando <strong>{{ 0 }}</strong> de <strong>{{ 0 }}</strong> artefatos</p>
       </div>
 
       <!-- Table View -->
       <div v-if="viewMode === 'table'" class="table-container">
-        <table class="artifacts-table">
+        <table class="Artefactss-table">
           <thead>
             <tr>
               <th>Número de Acervo</th>
@@ -166,35 +166,34 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="artifact in paginatedArtifacts" :key="artifact.id" class="artifact-row" @click="viewArtifact(artifact)">
-              <td class="accession-number">{{ artifact.accessionNumber }}</td>
-              <td class="artifact-name">{{ artifact.name }}</td>
-              <td>{{ artifact.collection }}</td>
+            <tr v-for="Artefact in Artefacts" :key="Artefact.id" class="Artefacts-row">
+              <td class="accession-number">{{ Artefact.id }}</td>
+              <td class="Artefacts-name">{{ Artefact.name }}</td>
+              <td>{{ Artefact.collection.name }}</td>
               <td>
-                <span class="badge" :class="artifact.rawMaterial.toLowerCase()">
-                  {{ artifact.rawMaterial }}
+                <span class="badge" :class="(Artefact.rawMaterial || '').toString().toLowerCase()">
+                  {{ Artefact.raw_material.name }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" :class="artifact.conservationStatus.toLowerCase()">
-                  {{ artifact.conservationStatus }}
+                <span class="status-badge" :class="(Artefact.conservationStatus || '').toString().toLowerCase()">
+                  {{ stateConverter(Artefact.conservation_status) }}
                 </span>
               </td>
-              <td>{{ artifact.location }}</td>
+              <td>{{ Artefact.localization.room }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-
       <!-- Grid View -->
       <div v-else class="grid-container">
-        <ArtifactCard
-          v-for="artifact in paginatedArtifacts"
-          :key="artifact.id"
-          :artifact="artifact"
-          @view="viewArtifact"
-          @edit="editArtifact"
-          @delete="deleteArtifact"
+        <ArtefactsCard
+          v-for="Artefacts in paginatedArtefacts"
+          :key="Artefacts.id"
+          :Artefacts="Artefacts"
+          @view="viewArtefacts"
+          @edit="editArtefacts"
+          @delete="deleteArtefacts"
         />
       </div>
 
@@ -224,231 +223,137 @@
   </ManagerLayout>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
-import ArtifactCard from '@/components/ArtifactCard.vue'
+import ArtefactCard from '@/components/ArtefactCard.vue'
+import { useArtefactsStore } from '@/stores/useArtefactStore'
 
-export default {
-  name: 'ArtifactList',
-  components: {
-    ManagerLayout,
-    ArtifactCard
-  },
-  data() {
-    return {
-      searchQuery: '',
-      showFilters: false,
-      viewMode: 'table',
-      sortBy: 'recent',
-      currentPage: 1,
-      itemsPerPage: 25,
-      showNewArtifactModal: false,
-      filters: {
-        collection: '',
-        rawMaterial: '',
-        subType: '',
-        conservationStatus: '',
-        location: '',
-        datingFrom: '',
-        datingTo: ''
-      },
-      artifacts: [
-        {
-          id: 1,
-          accessionNumber: 'TIB-001',
-          name: 'Cerâmica Tupiguarani',
-          collection: 'Tiburtius',
-          rawMaterial: 'Cerâmica',
-          subType: 'Cerâmica',
-          conservationStatus: 'Bom',
-          location: 'Reserva Nova',
-          dating: '1500-1700',
-          description: 'Fragmento de cerâmica com decoração geométrica'
-        },
-        {
-          id: 2,
-          accessionNumber: 'TIB-002',
-          name: 'Osso de Fauna',
-          collection: 'Tiburtius',
-          rawMaterial: 'Animal',
-          subType: 'Osso',
-          conservationStatus: 'Regular',
-          location: 'Reserva Antiga',
-          dating: '1200-1400',
-          description: 'Osso de fauna marinha com marcas de corte'
-        },
-        {
-          id: 3,
-          accessionNumber: 'TIB-003',
-          name: 'Fragmento Cerâmico',
-          collection: 'Joinville',
-          rawMaterial: 'Cerâmica',
-          subType: 'Cerâmica',
-          conservationStatus: 'Excelente',
-          location: 'Em Exposição',
-          dating: '1300-1600',
-          description: 'Fragmento com pintura vermelha'
-        },
-        {
-          id: 4,
-          accessionNumber: 'ARQ-001',
-          name: 'Concha de Molusco',
-          collection: 'Arqueologia',
-          rawMaterial: 'Animal',
-          subType: 'Concha',
-          conservationStatus: 'Bom',
-          location: 'Reserva Nova',
-          dating: '800-1200',
-          description: 'Concha de molusco marinho'
-        },
-        {
-          id: 5,
-          accessionNumber: 'ARQ-002',
-          name: 'Artefato de Pedra',
-          collection: 'Arqueologia',
-          rawMaterial: 'Mineral',
-          subType: 'Pedra',
-          conservationStatus: 'Excelente',
-          location: 'Em Exposição',
-          dating: '2000-1500',
-          description: 'Ferramenta de pedra polida'
-        },
-        {
-          id: 6,
-          accessionNumber: 'JOI-001',
-          name: 'Vaso Cerâmico',
-          collection: 'Joinville',
-          rawMaterial: 'Cerâmica',
-          subType: 'Cerâmica',
-          conservationStatus: 'Regular',
-          location: 'Reserva Nova',
-          dating: '1400-1700',
-          description: 'Vaso com decoração incisa'
-        },
-        {
-          id: 7,
-          accessionNumber: 'TIB-004',
-          name: 'Dente de Fauna',
-          collection: 'Tiburtius',
-          rawMaterial: 'Animal',
-          subType: 'Osso',
-          conservationStatus: 'Bom',
-          location: 'Reserva Antiga',
-          dating: '1000-1400',
-          description: 'Dente de fauna com desgaste natural'
-        },
-        {
-          id: 8,
-          accessionNumber: 'ARQ-003',
-          name: 'Lâmina de Sílex',
-          collection: 'Arqueologia',
-          rawMaterial: 'Mineral',
-          subType: 'Pedra',
-          conservationStatus: 'Excelente',
-          location: 'Em Exposição',
-          dating: '3000-2000',
-          description: 'Lâmina de sílex com gume aguçado'
-        }
-      ]
-    }
-  },
-  computed: {
-    filteredArtifacts() {
-      let result = this.artifacts
+const Artefacts = ref([])
 
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        result = result.filter(artifact =>
-          artifact.name.toLowerCase().includes(query) ||
-          artifact.accessionNumber.toLowerCase().includes(query) ||
-          artifact.description.toLowerCase().includes(query)
-        )
-      }
+const store = useArtefactsStore()
 
-      if (this.filters.collection) {
-        result = result.filter(a => a.collection === this.filters.collection)
-      }
-      if (this.filters.rawMaterial) {
-        result = result.filter(a => a.rawMaterial === this.filters.rawMaterial)
-      }
-      if (this.filters.subType) {
-        result = result.filter(a => a.subType === this.filters.subType)
-      }
-      if (this.filters.conservationStatus) {
-        result = result.filter(a => a.conservationStatus === this.filters.conservationStatus)
-      }
-      if (this.filters.location) {
-        result = result.filter(a => a.location === this.filters.location)
-      }
+const searchQuery = ref('')
+const showFilters = ref(false)
+const viewMode = ref('table')
+const sortBy = ref('recent')
+const currentPage = ref(1)
+const itemsPerPage = ref(25)
+const showNewArtefactsModal = ref(false)
+const filters = reactive({
+  collection: '',
+  rawMaterial: '',
+  subType: '',
+  conservationStatus: '',
+  location: '',
+  datingFrom: '',
+  datingTo: '',
+})
 
-      switch (this.sortBy) {
-        case 'name':
-          result.sort((a, b) => a.name.localeCompare(b.name))
-          break
-        case 'accession':
-          result.sort((a, b) => a.accessionNumber.localeCompare(b.accessionNumber))
-          break
-        case 'collection':
-          result.sort((a, b) => a.collection.localeCompare(b.collection))
-          break
-        case 'recent':
-        default:
-          result.sort((a, b) => b.id - a.id)
-      }
-
-      return result
-    },
-    paginatedArtifacts() {
-      const start = (this.currentPage - 1) * this.itemsPerPage
-      const end = start + this.itemsPerPage
-      return this.filteredArtifacts.slice(start, end)
-    },
-    totalPages() {
-      return Math.ceil(this.filteredArtifacts.length / this.itemsPerPage)
-    },
-    activeFiltersCount() {
-      return Object.values(this.filters).filter(v => v !== '').length
-    }
-  },
-  methods: {
-    applyFilters() {
-      this.currentPage = 1
-    },
-    clearFilters() {
-      this.filters = {
-        collection: '',
-        rawMaterial: '',
-        subType: '',
-        conservationStatus: '',
-        location: '',
-        datingFrom: '',
-        datingTo: ''
-      }
-      this.searchQuery = ''
-      this.currentPage = 1
-    },
-    viewArtifact(artifact) {
-      console.log('Visualizar artefato:', artifact)
-    },
-    editArtifact(artifact) {
-      console.log('Editar artefato:', artifact)
-    },
-    deleteArtifact(artifact) {
-      if (confirm(`Tem certeza que deseja deletar "${artifact.name}"?`)) {
-        this.artifacts = this.artifacts.filter(a => a.id !== artifact.id)
-      }
-    }
-  },
-  watch: {
-    itemsPerPage() {
-      this.currentPage = 1
-    }
+function stateConverter(item) {
+  switch(item) {
+    case 1:
+      return 'Perfeito'
+    case 2:
+      return 'Bom'
+    case 3:
+      return 'Regular'
+    case 4:
+      return 'Ruim'
+    case 5:
+      return 'Crítico'
+    case 6:
+      return 'Irreversível'
   }
 }
+
+const filteredArtefacts = computed(() => {
+  let result = Artefacts.value
+
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(a =>
+      (a.name || '').toLowerCase().includes(q) ||
+      (a.accessionNumber || '').toLowerCase().includes(q) ||
+      (a.description || '').toLowerCase().includes(q)
+    )
+  }
+
+  if (filters.collection) result = result.filter(a => a.collection === filters.collection)
+  if (filters.rawMaterial) result = result.filter(a => a.rawMaterial === filters.rawMaterial)
+  if (filters.subType) result = result.filter(a => a.subType === filters.subType)
+  if (filters.conservationStatus) result = result.filter(a => a.conservationStatus === filters.conservationStatus)
+  if (filters.location) result = result.filter(a => a.location === filters.location)
+
+  return result
+})
+
+const paginatedArtefacts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredArtefacts.value.slice(start, end)
+})
+
+const totalPages = computed(() => Math.ceil(filteredArtefacts.value.length / itemsPerPage.value))
+const activeFiltersCount = computed(() => Object.values(filters).filter(v => v !== '').length)
+
+function applyFilters() {
+  currentPage.value = 1
+  loadArtefacts({ filters: { ...filters, q: searchQuery.value }, page: currentPage.value })
+}
+
+function clearFilters() {
+  filters.collection = ''
+  filters.rawMaterial = ''
+  filters.subType = ''
+  filters.conservationStatus = ''
+  filters.location = ''
+  filters.datingFrom = ''
+  filters.datingTo = ''
+  searchQuery.value = ''
+  currentPage.value = 1
+  loadArtefacts()
+}
+
+function viewArtefacts(Artefacts) {
+  console.log('Visualizar artefato:', Artefacts)
+}
+
+function editArtefact(Artefacts) {
+  console.log('Editar artefato:', Artefacts)
+}
+
+async function deleteArtefact(Artefacts) {
+  if (!confirm(`Tem certeza que deseja deletar \"${Artefacts.name}\"?`)) return
+  try {
+    await store.remove(Artefacts.id)
+    Artefactss.value = Artefactss.value.filter(a => a.id !== Artefacts.id)
+  } catch (e) {
+    console.error('Erro ao deletar artefato:', e)
+  }
+}
+
+async function loadArtefacts(options) {
+  try {
+  const data = await store.fetchAll(options)
+    const list = Array.isArray(data) ? data : (data && (data.results ?? data.data))
+    console.log('[ArtefactList] normalized list:', list)
+    Artefacts.value = Array.isArray(list) ? list : []
+  } catch (e) {
+    console.error('Erro ao carregar artefatos:', e)
+  }
+}
+
+watch(itemsPerPage, () => { currentPage.value = 1 })
+
+onMounted( async () => {
+  await loadArtefacts()
+})
+
 </script>
 
 <style scoped>
-.artifact-list-container {
+.Artefacts-list-container {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -655,25 +560,25 @@ tr:hover{
   overflow-x: auto;
 }
 
-.artifacts-table {
+.Artefactss-table {
   width: 100%;
   border-collapse: collapse;
   color: white;
 }
 
-.artifacts-table thead {
+.Artefactss-table thead {
   background-color: #1e1e1e;
   color: white;
 }
 
-.artifacts-table th {
+.Artefactss-table th {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
   font-size: 0.9rem;
 }
 
-.artifacts-table td {
+.Artefactss-table td {
   padding: 1rem;
   border-bottom: 1px solid #313131;
 }
@@ -683,7 +588,7 @@ tr:hover{
   color: white;
 }
 
-.artifact-name {
+.Artefacts-name {
   font-weight: 600;
   color: white;
 }
@@ -847,12 +752,12 @@ tr:hover{
     grid-template-columns: 1fr;
   }
 
-  .artifacts-table {
+  .Artefactss-table {
     font-size: 0.85rem;
   }
 
-  .artifacts-table th,
-  .artifacts-table td {
+  .Artefactss-table th,
+  .Artefactss-table td {
     padding: 0.5rem;
   }
 }
