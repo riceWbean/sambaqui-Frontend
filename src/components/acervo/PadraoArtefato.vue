@@ -1,34 +1,61 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router' // Adicione useRouter aqui
-import { ref, computed } from "vue";
-import { useArtefatosStore } from "@/stores/artefatosStore";
+import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted } from "vue";
+import { useArtefatosStore } from "@/stores/artefatoCliente";
 import SlideComponent from "./SlideComponent.vue";
 
-const artefatosStore = useArtefatosStore();
+const artefatosStore = useArtefatosStore()
+const busca = ref(null)
+// ✔ Agora chamamos o método novo
+onMounted(async () => {
+    try {
+        await artefatosStore.fetchAll(5, 1)
+    } catch (e) {
+        console.error("Erro ao carregar artefatos:", e)
+    }
+})
+onMounted(() => {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    })
+     setTimeout(() => {
+    busca.value?.focus()
+  }, 200)
+})
+
 const route = useRoute()
-const router = useRouter() // <-- Obtenha a instância do Router
-const busca = ref("");
-const ordenar = ref("popular");
+const router = useRouter()
+
+const ordenar = ref("popular")
 
 const listaFiltrada = computed(() => {
-    let dados = [...artefatosStore.artefatos];
+    // ✔ TESTE: se ainda não carregou, retorna array vazio
+    if (!Array.isArray(artefatosStore.artefatos)) return []
 
+    let dados = [...artefatosStore.artefatos]
+
+    // ✔ TESTE: garantir que name exista
     // FILTRO POR BUSCA
-    if (busca.value.trim() !== "") {
+   if ((busca.value || "").trim() !== "") {
         dados = dados.filter(item =>
-            item.name.toLowerCase().includes(busca.value.toLowerCase())
-        );
+            (item.name || "").toLowerCase().includes(busca.value.toLowerCase())
+        )
     }
 
-    // ORDENAÇÃO BÁSICA
+    // ✔ TESTE: prevenir quebra em register_date
     if (ordenar.value === "nome") {
-        dados.sort((a, b) => a.name.localeCompare(b.name));
+        dados.sort((a, b) =>
+            (a.name || "").localeCompare(b.name || "")
+        )
     } else if (ordenar.value === "recente") {
-        dados.sort((a, b) => new Date(b.register_date) - new Date(a.register_date));
+        dados.sort((a, b) =>
+            new Date(b.register_date || 0) - new Date(a.register_date || 0)
+        )
     }
 
-    return dados;
-});
+    return dados
+})
 </script>
 
 <template>
@@ -58,20 +85,23 @@ const listaFiltrada = computed(() => {
         </div>
 
         <!-- LISTA -->
-          <div class="lista-artefatos">
+        <div class="lista-artefatos">
             <div v-for="item in listaFiltrada" :key="item.id" class="item">
+                
                 <SlideComponent @click="router.push(`/artefact/${item.id}`)" 
                     :id="item.id" 
                     :nome="item.name" 
                     :codigo="item.id" 
-                    :material="item.raw_material.name"
-                    :subtitulo="item.sub_type.name" 
-                    :img="item.images?.length ? item.images[0].url_photo : ''" 
+                    :material="item.raw_material?.name || '—'"
+                    :subtitulo="item.sub_type?.name || '—'" 
+                    :img="item.images?.length ? item.images[0]?.url_photo : ''" 
                 />
+               
             </div>
         </div>
     </div>
 </template>
+
 
 <style scoped>
 /* Container geral */
@@ -81,6 +111,7 @@ const listaFiltrada = computed(() => {
     align-items: center;
     justify-content: center;
     gap: 25px;
+    height: 90%;
 }
 
 /* 🔍 Área superior */

@@ -40,10 +40,10 @@
             </router-link>
           </li>
           <li>
-            <router-link 
-              to="/artifacts/new" 
+            <router-link
+              to="/management/add"
               class="nav-link"
-              :class="{ active: isActive('/artifacts/new') }"
+              :class="{ active: isActive('/management/add') }"
             >
               <span class="nav-text">Novo Artefato</span>
             </router-link>
@@ -73,16 +73,16 @@
         <ul class="nav-menu">
           <li>
             <router-link 
-              to="/locations" 
+              to="/siteMap" 
               class="nav-link"
-              :class="{ active: isActive('/locations') }"
+              :class="{ active: isActive('/siteMap') }"
             >
               <span class="nav-text">Sítios Arqueológicos</span>
             </router-link>
           </li>
           <li>
             <router-link 
-              to="/reserves" 
+              to="/management/log-changes" 
               class="nav-link"
               :class="{ active: isActive('/reserves') }"
             >
@@ -107,7 +107,7 @@
         <ul class="nav-menu">
           <li>
             <router-link 
-              to="/raw-materials" 
+              to="/management/raw-materials" 
               class="nav-link"
               :class="{ active: isActive('/raw-materials') }"
             >
@@ -116,20 +116,26 @@
           </li>
           <li>
             <router-link 
-              to="/subtypes" 
+              to="/management/sub-types" 
               class="nav-link"
-              :class="{ active: isActive('/subtypes') }"
+              :class="{ active: isActive('/management/sub-types') }"
             >
               <span class="nav-text">Sub-Tipos</span>
             </router-link>
           </li>
+        </ul>
+      </div>
+      <!-- Auditoria Section -->
+      <div class="nav-section">
+        <p class="nav-section-title">Auditoria</p>
+        <ul class="nav-menu">
           <li>
-            <router-link 
-              to="/conservation-status" 
+            <router-link
+              to="/management/log-changes"
               class="nav-link"
-              :class="{ active: isActive('/conservation-status') }"
+              :class="{ active: isActive('/management/log-changes') }"
             >
-              <span class="nav-text">Estado de Conservação</span>
+              <span class="nav-text">Registros de Auditoria</span>
             </router-link>
           </li>
         </ul>
@@ -167,10 +173,9 @@ export default {
       return this.$route.path === path || this.$route.path.startsWith(path + '/')
     },
     logout() {
-      if (confirm('Tem certeza que deseja sair?')) {
-        console.log('Logout')
-        // Implementar lógica de logout
-      }
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      this.$router.push('/')
     }
   }
 }
