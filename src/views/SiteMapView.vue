@@ -1,5 +1,5 @@
 <template>
-    <ManagerLayout>
+    <ManagerLayout pageTitle="Mapas interativos" >
         <div id="app">
             <header class="header">
                 <div class="header-content">

@@ -99,7 +99,7 @@ const deleteResearcher = (researcher) => {
 </script>
 
 <template>
-    <ManagerLayout>
+    <ManagerLayout pageTitle="Gerenciar coleções" >
         <div class="cards-container">
             <div class="header-with-btn">
                 <h1>Pesquisadores de Arqueologia</h1>

@@ -33,7 +33,7 @@
       <!-- 3 artefatos do backend -->
       <div class="main-artefacts">
         <div 
-          v-for="item in artefatosStore.artefatos.slice(0, 3)" 
+          v-for="item in artefatosStore.artefatos.slice(0, 4)" 
           :key="item.id" 
           class="item"
         >
@@ -45,6 +45,7 @@
             :material="item.raw_material?.name || '—'"
             :subtitulo="item.sub_type?.name || '—'"
             :img="item.images?.length ? item.images[0].url_photo : ''"
+            v-motion-slide-visible-once-bottom :delay="400" :duration="500"
           />
         </div>
       </div>
@@ -65,7 +66,8 @@
       </div> -->
 
       <div class="flex">
-        <MapaComponent />
+        <MapaComponent 
+            v-motion-slide-visible-once-bottom :delay="500" :duration="500" />
       </div>
 
     </main>

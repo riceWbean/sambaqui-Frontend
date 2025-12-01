@@ -3,7 +3,7 @@
         <ul class="header-list">
             <li><router-link to="/">Início</router-link></li>
             <li><router-link to="/about">Sobre</router-link></li>
-            <li><router-link to="/exhibitions">Exibições</router-link></li>
+            <!-- <li><router-link to="/exhibitions">Exibições</router-link></li> -->
             <li><router-link to="/acervo">Acervo</router-link></li>
             <li>
                 <img src="/src/assets/icons/search_icon.svg" alt="search" @click="irParaBusca"

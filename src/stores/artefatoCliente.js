@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import ArtefactsService from '@/services/artefactsServices'
 
-export const useArtefatosStore = defineStore('artefatos', () => {
+export const useArtefatosStore = defineStore('artefatos_cliente', () => {
   const artefatos = ref([])
   const loading = ref(false)
   const error = ref(null)
