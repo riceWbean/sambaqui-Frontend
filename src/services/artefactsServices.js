@@ -7,27 +7,33 @@ class ArtefactsService {
     }
     async getAllArtefacts(num_artefacts, page) {
         try {
-            const { data } = await api.get(`/artefacts?num_artefacts=${num_artefacts}&page=${page}`);
+            const { data } = await api.get(`/artefacts?num_artefacts=${num_artefacts}&page=${page}`, { headers: { skipAuth: true } });
             return data;
         } catch (error) {
             throw new Error('Falha ao buscar artefatos: ' + error.message);
         }
     }
 
-    async getFilteredArtefacts(filterParams) {
-        let url = `artefacts?`;
-        for (const [key, value] of Object.entries(filterParams)) {
-            if (value != '') {
-                if (url == 'artefacts?') {
-                    url += `${key}=${value}`;
-                    continue;
-                }
-                url += `&${key}=${value}`;
-            }
+async getFilteredArtefacts(params) {
+
+    // transforma arrays assim:
+    // { conservation_status: [1,2,3] }
+    // em:
+    // conservation_status=1&conservation_status=2&conservation_status=3
+
+    const searchParams = new URLSearchParams()
+
+    for (const [key, value] of Object.entries(params)) {
+        if (Array.isArray(value)) {
+            value.forEach(v => searchParams.append(key, v))
+        } else {
+            searchParams.append(key, value)
         }
-        const { data } = await api.get(url);
-        return data;
     }
+
+    const { data } = await api.get(`/artefacts?${searchParams.toString()}`)
+    return data
+}
 
     async getArtefact(id) {
         try {

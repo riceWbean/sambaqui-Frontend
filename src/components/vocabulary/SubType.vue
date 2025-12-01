@@ -78,7 +78,7 @@
                         <tr v-for="item in paginatedList" :key="item.id">
                             <td class="subtype-id">{{ item.id }}</td>
                             <td class="subtype-name">{{ item.name }}</td>
-                            <td class="raw-material-name">{{ getRawMaterialName(item.raw_material_id) }}</td>
+                            <td class="raw-material-name">{{ item.raw_material }}</td>
                             <td class="actions-cell">
                                 <button class="action-btn edit" @click="openEditModal(item)">Editar</button>
                                 <button class="action-btn delete" @click="deleteItem(item)">Excluir</button>

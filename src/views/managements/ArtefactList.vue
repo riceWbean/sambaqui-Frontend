@@ -106,14 +106,6 @@
             Grade
           </button>
         </div>
-        <div class="sort-options">
-          <label>Ordenar por:</label>
-          <select v-model="sortBy" class="sort-select">
-            <option value="recent">Mais Recentes</option>
-            <option value="name">Nome (A-Z)</option>
-            <option value="id">Número de Acervo</option>
-          </select>
-        </div>
         <div class="items-per-page">
           <label>Itens por página:</label>
           <select @change="artefatosStores.filters.num_artefacts = $event.target.value; artefatosStores.getAllArtefacts()" :value="artefatosStores.filters.num_artefacts" class="items-select">
@@ -478,9 +470,10 @@ onMounted(async () => {
 }
 
 .filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 1.5rem;
 }
 

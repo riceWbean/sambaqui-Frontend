@@ -1,26 +1,24 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted } from "vue";
-import { useArtefatosStore } from "@/stores/artefatoCliente";
+import { useArtefatosStore } from "@/stores";
 import SlideComponent from "./SlideComponent.vue";
 
-const artefatosStore = useArtefatosStore()
+const artefatosStore = useArtefatosStore();
 const busca = ref(null)
 // ✔ Agora chamamos o método novo
 onMounted(async () => {
     try {
-        await artefatosStore.fetchAll(5, 1)
+        await artefatosStore.getAllArtefacts();
     } catch (e) {
         console.error("Erro ao carregar artefatos:", e)
     }
-})
-onMounted(() => {
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     })
-     setTimeout(() => {
-    busca.value?.focus()
+    setTimeout(() => {
+     busca.value?.focus()
   }, 200)
 })
 
@@ -31,9 +29,9 @@ const ordenar = ref("popular")
 
 const listaFiltrada = computed(() => {
     // ✔ TESTE: se ainda não carregou, retorna array vazio
-    if (!Array.isArray(artefatosStore.artefatos)) return []
+    if (!Array.isArray(artefatosStore.artefatos.results)) return []
 
-    let dados = [...artefatosStore.artefatos]
+    let dados = [...artefatosStore.artefatos.results]
 
     // ✔ TESTE: garantir que name exista
     // FILTRO POR BUSCA
