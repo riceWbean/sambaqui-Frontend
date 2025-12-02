@@ -18,14 +18,6 @@ export const useCategoriaFiltroStore = defineStore('categoriaFiltro', () => {
   const subType = ref([])                // sub_type id
   const archaeological = ref([])         // archaeological_site id
 
-  // 🔹 WATCHERS → manda para o filtroStore
-  watch(conservacao, v => FiltrosStore.conservation_status = v)
-  watch(collectionCategory, v => FiltrosStore.collection_category = v)
-  watch(rawMaterial, v => FiltrosStore.raw_material = v)
-  watch(localizacao, v => FiltrosStore.localization = v)
-  watch(subType, v => FiltrosStore.sub_type = v)
-  watch(archaeological, v => FiltrosStore.archaeological_site = v)
-
   // 🔹 Controle de abrir/fechar
   const dataAberto = ref(true)
   const conservacaoAberto = ref(true)
@@ -35,12 +27,70 @@ export const useCategoriaFiltroStore = defineStore('categoriaFiltro', () => {
   const subtypeAberto = ref(true)
   const siteAberto = ref(true)
 
+  // 🔹 Função para limpar todos os filtros exceto o ativo
+  const clearOtherFilters = (activeFilter) => {
+    if (activeFilter !== 'conservacao') {
+      conservacao.value = []
+      conservacaoAberto.value = true  // fecha visualmente (true = fechado, mostra +)
+    }
+    if (activeFilter !== 'collectionCategory') {
+      collectionCategory.value = []
+      colecaoAberto.value = true
+    }
+    if (activeFilter !== 'rawMaterial') {
+      rawMaterial.value = []
+      materialAberto.value = true
+    }
+    if (activeFilter !== 'localizacao') {
+      localizacao.value = []
+      localAberto.value = true
+    }
+    if (activeFilter !== 'subType') {
+      subType.value = []
+      subtypeAberto.value = true
+    }
+    if (activeFilter !== 'archaeological') {
+      archaeological.value = []
+      siteAberto.value = true
+    }
+  }
+
+  // 🔹 WATCHERS → manda para o filtroStore usando $patch (só permite um filtro ativo por vez)
+  watch(conservacao, v => {
+    if (v.length > 0) clearOtherFilters('conservacao')
+    FiltrosStore.$patch({ conservation_status: [...v] })
+  }, { deep: true })
+  
+  watch(collectionCategory, v => {
+    if (v.length > 0) clearOtherFilters('collectionCategory')
+    FiltrosStore.$patch({ collection_category: [...v] })
+  }, { deep: true })
+  
+  watch(rawMaterial, v => {
+    if (v.length > 0) clearOtherFilters('rawMaterial')
+    FiltrosStore.$patch({ raw_material: [...v] })
+  }, { deep: true })
+  
+  watch(localizacao, v => {
+    if (v.length > 0) clearOtherFilters('localizacao')
+    FiltrosStore.$patch({ localization: [...v] })
+  }, { deep: true })
+  
+  watch(subType, v => {
+    if (v.length > 0) clearOtherFilters('subType')
+    FiltrosStore.$patch({ sub_type: [...v] })
+  }, { deep: true })
+  
+  watch(archaeological, v => {
+    if (v.length > 0) clearOtherFilters('archaeological')
+    FiltrosStore.$patch({ archaeological_site: [...v] })
+  }, { deep: true })
+
   // 🔹 Reset ao mudar rota
   const resetFilters = () => {
     dataMin.value = ""
     dataMax.value = ""
-    FiltrosStore.dataMin = ""
-    FiltrosStore.dataMax = ""
+    FiltrosStore.$patch({ dataMin: "", dataMax: "" })
 
     conservacao.value = []
     collectionCategory.value = []
@@ -61,13 +111,11 @@ export const useCategoriaFiltroStore = defineStore('categoriaFiltro', () => {
     funcaoFechar: () => {
       dataMin.value = ""
       dataMax.value = ""
-      FiltrosStore.dataMin = ""
-      FiltrosStore.dataMax = ""
+      FiltrosStore.$patch({ dataMin: "", dataMax: "" })
     },
 
     funcaoClicked: () => {
-      FiltrosStore.dataMin = dataMin.value
-      FiltrosStore.dataMax = dataMax.value
+      FiltrosStore.$patch({ dataMin: dataMin.value, dataMax: dataMax.value })
     },
   })
 
@@ -79,7 +127,7 @@ export const useCategoriaFiltroStore = defineStore('categoriaFiltro', () => {
       aberto: conservacaoAberto,
       model: conservacao,
       array: [
-        { nome: "Excelente",    value: 1 },
+        { nome: "Perfeito",    value: 1 },
         { nome: "Regular",      value: 2 },
         { nome: "Ruim",         value: 3 },
         { nome: "Crítico",      value: 4 },

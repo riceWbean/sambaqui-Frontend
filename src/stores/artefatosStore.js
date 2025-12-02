@@ -34,8 +34,8 @@ export const useArtefatosStore = defineStore('artefatos', () => {
 
   async function getAllArtefacts() {
     try {
-        const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
-        artefatos.value = response;
+      const response = await ArtefactsService.getAllArtefacts(filters.num_artefacts, filters.page);
+      artefatos.value = response;
     }
     catch(error) {
         console.error('Error in GET All Artefacts: ', error);
