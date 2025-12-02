@@ -55,11 +55,7 @@ async getFilteredArtefacts(params) {
             throw new Error('Falha ao deletar artefato: ' + error.message);
         }
     }
-    async getFilteredArtefacts(params) {
-        const query = new URLSearchParams(params).toString()
-        const { data } = await api.get(`/artefacts?${query}`)
-        return data
-    }
+
     async updateArtefact(form) {
         console.log(form.id);
         const response = await api.patch(`/artefacts/${form.id}/`);

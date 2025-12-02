@@ -1,30 +1,43 @@
 <script setup>
-defineProps({
+const props = defineProps({
   filtroLista: {
     type: Array,
     required: true,
   },
 });
+
+// Função para fechar todos os outros filtros e abrir apenas o clicado
+const toggleFiltro = (itemClicado) => {
+  props.filtroLista.forEach(item => {
+    if (item !== itemClicado) {
+      item.aberto = true  // true = fechado (mostra +)
+    }
+  })
+  itemClicado.aberto = !itemClicado.aberto
+}
 </script>
 
 <template>
-  <div v-for="(item, index) in filtroLista" :key="index" class="item">
-    <div class="container">
-      <span class="subtitulo">{{ item.titulo }}</span>
-      <button class="pointer" @click="item.funcao, item.aberto = !item.aberto" v-if="!item.aberto">-</button>
-      <button class="pointer" @click="item.aberto = !item.aberto" v-else>+</button>
-    </div>
+  <div>
+    <div v-for="(item, index) in filtroLista" :key="index" class="item">
+      <div class="container">
+        <span class="subtitulo">{{ item.titulo }}</span>
+        <button class="pointer" @click="() => { item.funcao(); toggleFiltro(item) }" v-if="!item.aberto">-</button>
+        <button class="pointer" @click="toggleFiltro(item)" v-else>+</button>
+      </div>
     <div class="opcoes" v-if="!item.aberto">
-      <div v-for="(item2, index) in item.array" :key="index" class="opcao-input">
+      <div v-for="(item2, idx) in item.array" :key="idx" class="opcao-input">
         <input
           class="opcao"
-          type="checkbox"
-          :id="item2.nome"
-          :name="item2.nome"
+          type="radio"
+          :id="`${item.titulo}-${item2.nome}`"
+          :name="item.titulo"
           :value="item2.value"
-          v-model="item.model"
+          :checked="item.model.includes(item2.value)"
+          @change="item.model = [item2.value]"
         />
-        <label class="opcao-input-label" :for="item2.nome"> {{ item2.nome }} </label>
+        <label class="opcao-input-label" :for="`${item.titulo}-${item2.nome}`"> {{ item2.nome }} </label>
+        </div>
       </div>
     </div>
   </div>
@@ -52,15 +65,15 @@ option {
   cursor: pointer;
 }
 
-.opcao-input input[type="checkbox"]:checked,
-input[type="checkbox"]:checked {
+.opcao-input input[type="radio"]:checked,
+input[type="radio"]:checked {
   background-color: #846247;
 }
 
-.opcao-input input[type="checkbox"] {
+.opcao-input input[type="radio"] {
   all: unset;
   border: 1.5px solid #d9d9d9;
-  border-radius: 15px;
+  border-radius: 50%;
   width: 15px;
   height: 15px;
   margin: 0px 8px;
