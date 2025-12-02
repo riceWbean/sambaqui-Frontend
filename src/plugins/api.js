@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_DJANGO_URL,
+  baseURL: 'https://acervo-api.productionapp3.fabricadesoftware.ifc.edu.br/api',
   timeout: 10000,
   headers: {
     skipAuth: true
