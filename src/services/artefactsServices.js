@@ -6,12 +6,10 @@ class ArtefactsService {
         return response.data;
     }
     async getAllArtefacts(num_artefacts, page) {
-        try {
-            const { data } = await api.get(`/artefacts?num_artefacts=${num_artefacts}&page=${page}`, { headers: { skipAuth: true } });
-            return data;
-        } catch (error) {
-            throw new Error('Falha ao buscar artefatos: ' + error.message);
-        }
+        const { data } = await api.get(`/artefacts?num_artefacts=${num_artefacts}&page=${page}`, { headers: { skipAuth: true } });
+        console.log(data);
+        console.log(import.meta.env.VITE_DJANGO_URL)
+        return data;
     }
 
 async getFilteredArtefacts(params) {
